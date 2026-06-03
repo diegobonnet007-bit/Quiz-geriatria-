@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quiz EM">
+<meta name="format-detection" content="telephone=no">
+<title>Quiz Emergenze Mediche</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Helvetica Neue',system-ui,sans-serif;background:#0f0f17;color:#e2e8f0;min-height:100vh;-webkit-text-size-adjust:100%;overflow-x:hidden}
+#app{max-width:620px;margin:0 auto;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom));padding-left:calc(20px + env(safe-area-inset-left));padding-right:calc(20px + env(safe-area-inset-right))}
+h1{font-size:22px;font-weight:700;color:#e2e8f0;letter-spacing:-.3px}
+p{line-height:1.6}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.btn{display:block;width:100%;padding:13px 16px;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#e2e8f0;font-size:14px;font-family:inherit;cursor:pointer;text-align:left;transition:background .12s;margin-bottom:8px;-webkit-appearance:none;appearance:none}
+.btn:hover{background:rgba(255,255,255,.08)}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#38bdf8);border:none;color:#fff;text-align:center;font-weight:600;font-size:15px}
+.btn-primary:hover{opacity:.9}
+.btn-mode{justify-content:space-between;display:flex;align-items:center;font-weight:600;font-size:15px}
+.btn-sim{background:linear-gradient(135deg,#7c3aed,#2563eb);border:none;color:#fff}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.08);color:#64748b;font-size:12px;text-align:center}
+.btn-back{background:transparent;border:1px solid rgba(255,255,255,.08);color:#94a3b8;font-size:13px;display:flex;align-items:center;gap:6px;width:auto;padding:8px 14px;margin-bottom:16px}
+.progress-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;margin-bottom:18px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#38bdf8);border-radius:2px;transition:width .4s}
+.opt{padding:12px 15px;border-radius:11px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#94a3b8;font-size:13.5px;font-family:inherit;cursor:pointer;text-align:left;width:100%;min-height:44px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;transition:all .12s;line-height:1.5;-webkit-appearance:none;appearance:none}
+.opt:hover{background:rgba(255,255,255,.08)}
+.opt.selected{background:rgba(99,102,241,.12);border-color:#6366f1;color:#e2e8f0}
+.opt.correct{background:rgba(34,197,94,.1);border-color:#22c55e;color:#86efac}
+.opt.wrong{background:rgba(239,68,68,.1);border-color:#ef4444;color:#fca5a5}
+.opt-lbl{opacity:.4;flex-shrink:0;font-size:11px;font-weight:700;margin-top:1px}
+.exp{border-radius:13px;padding:14px 16px;margin-bottom:12px}
+.exp.ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25)}
+.exp.ko{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+.exp-title{font-weight:700;font-size:13px;margin-bottom:8px}
+.exp-why{color:#cbd5e1;font-size:13px;line-height:1.65;margin-bottom:10px}
+.memo{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:9px;padding:9px 12px;font-size:12.5px;color:#fde68a;line-height:1.5}
+.memo span{color:#f59e0b;font-weight:700;font-size:11px}
+.flag{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:9px;padding:8px 12px;margin-top:8px;font-size:12px;color:#94a3b8;line-height:1.5}
+.flag span{color:#f59e0b;font-weight:700}
+.badge{font-size:10px;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:5px;padding:2px 6px;flex-shrink:0}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.meta-l{color:#94a3b8;font-size:13px;font-weight:500}
+.meta-r{display:flex;align-items:center;gap:8px;color:#64748b;font-size:12px}
+.stats{display:flex;gap:0;border:1px solid rgba(255,255,255,.08);border-radius:13px;overflow:hidden;margin-bottom:18px}
+.stat{flex:1;padding:12px;text-align:center;background:rgba(255,255,255,.03)}
+.stat+.stat{border-left:1px solid rgba(255,255,255,.08)}
+.stat-val{font-size:20px;font-weight:700}
+.stat-lbl{font-size:10px;color:#64748b;margin-top:2px}
+.score-pct{font-size:52px;font-weight:800;line-height:1;margin:10px 0 4px}
+.wrong-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:13px;padding:14px 16px;margin-bottom:10px}
+.wrong-q{color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:8px}
+.wrong-ans{font-size:12px;margin-bottom:3px}
+.wrong-ans.ko{color:#fca5a5}
+.wrong-ans.ok{color:#86efac}
+.wrong-why{color:#94a3b8;font-size:12px;line-height:1.55;margin:8px 0 6px}
+.wrong-why span{color:#38bdf8;font-weight:600}
+.section-title{color:#e2e8f0;font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.btn-row{display:flex;gap:10px;margin-top:18px}
+.btn-row .btn{flex:1;text-align:center;font-weight:600;font-size:14px;margin-bottom:0}
+.home-header{text-align:center;padding:28px 0 22px}
+.home-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#6366f1,#38bdf8);display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;box-shadow:0 0 30px rgba(99,102,241,.35)}
+.home-sub{color:#64748b;font-size:13px;margin-top:4px}
+.sep{width:1px;background:rgba(255,255,255,.08)}
+.tab-row{display:flex;gap:8px;margin-bottom:20px}
+.tab{flex:1;padding:10px;min-height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#94a3b8;font-size:13px;font-family:inherit;cursor:pointer;text-align:center;font-weight:600;transition:all .15s;-webkit-appearance:none;appearance:none}
+.tab.active{background:rgba(99,102,241,.15);border-color:#6366f1;color:#e2e8f0}
+.cat-btn{display:flex;align-items:center;gap:12px;padding:13px 16px;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#e2e8f0;font-size:14px;font-family:inherit;cursor:pointer;text-align:left;width:100%;margin-bottom:8px;transition:background .12s;-webkit-appearance:none;appearance:none}
+.cat-btn:hover{background:rgba(255,255,255,.08)}
+.cat-icon{font-size:20px;flex-shrink:0}
+.cat-info{flex:1}
+.cat-name{font-weight:600;font-size:14px}
+.cat-count{color:#64748b;font-size:12px;margin-top:2px}
+.cat-arrow{color:#64748b;font-size:16px}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;margin-right:4px;margin-bottom:4px;font-weight:600}
+</style>
+</head>
+<body>
+<!-- Banner iOS: visibile solo se aperto come testo invece che come pagina web -->
+<noscript>
+<div style="font-family:-apple-system,sans-serif;background:#1e1b4b;color:#e2e8f0;padding:24px 20px;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <div style="font-size:48px">🏥</div>
+  <h1 style="font-size:20px;font-weight:700">Quiz Emergenze Mediche</h1>
+  <p style="font-size:15px;color:#94a3b8;max-width:300px;line-height:1.6">JavaScript non è attivo.<br>Apri questo file in <strong style="color:#e2e8f0">Safari</strong> per usare il quiz.</p>
+</div>
+</noscript>
+<div id="app"></div>
+<script>
+const CATS=[
+  {id:"shock",name:"Shock e Emodinamica",icon:"🫀",color:"#ef4444",ids:[20,24,35,36,45,64,69,72,85,99,102,106,115,116,117,131,137,138,161,176,223,229]},
+  {id:"resp",name:"Respiratorio e Ventilazione",icon:"🫁",color:"#38bdf8",ids:[4,9,17,29,32,40,41,52,86,101,107,108,121,128,144,153,156,157,158,166,167,187,194,204,205,230,234,235,236,237,238,239,240,241,253,254,255]},
+  {id:"trauma",name:"Trauma e Chirurgia",icon:"🩹",color:"#f97316",ids:[3,5,7,8,31,37,42,49,50,58,59,60,61,70,73,75,79,80,88,111,113,120,141,143,236]},
+  {id:"cardio",name:"Cardiologia d'Emergenza",icon:"❤️",color:"#ec4899",ids:[6,18,20,25,39,43,46,47,48,55,62,63,72,77,78,82,87,89,100,109,118,127,128,129,130,131,135,139,142,148]},
+  {id:"neuro",name:"Neurologico e Trauma Cranico",icon:"🧠",color:"#a78bfa",ids:[10,27,38,76,84,92,96,110,157,170,171,172,178,185,186,188,197,199,200,202,212,258,259]},
+  {id:"sepsi",name:"Sepsi e Infezioni",icon:"🦠",color:"#22c55e",ids:[11,12,21,24,81,83,91,93,103,105,106,124,137,154,161,168,176,180,182,223,243,253]},
+  {id:"farmaco",name:"Farmacologia e Tossicologia",icon:"💊",color:"#f59e0b",ids:[15,19,26,33,47,53,74,80,90,95,98,119,120,122,135,164,173,177,179,181,183,184,191,192,195,196,201,252,258]},
+  {id:"elettro",name:"Elettroliti e Metabolismo",icon:"🔬",color:"#06b6d4",ids:[14,19,23,26,33,51,68,98,105,123,145,151,152,162,163,164,165,174,177,186,189,192,193,195,198,200,242,257]},
+  {id:"eco",name:"Ecografia e Monitoraggio",icon:"📟",color:"#818cf8",ids:[1,9,22,28,29,30,35,44,52,54,57,63,66,71,82,86,107,114,125,126,127,133,134,136,140,147,149,150,172,175,206,217,219,232,233,236]},
+  {id:"pediatria",name:"Pediatria e BLS",icon:"👶",color:"#34d399",ids:[3,34,104,112,113,132,146,155,233,234,235,241]},
+  {id:"gastro",name:"Addome e Gastroenterologia",icon:"🏥",color:"#fb923c",ids:[2,13,16,56,58,65,67,70,94,97,190,207,210,213,221,222,225,227,228,231,244,245,246,247,248,249,250,251,256]},
+  {id:"triage",name:"Triage e Organizzazione",icon:"🚨",color:"#94a3b8",ids:[154,168,203,226]},
+  {id:"anestesia",name:"Anestesiologia",icon:"💉",color:"#c084fc",ids:[208,209,214,218]},
+  {id:"nefrologia",name:"Nefrologia e TI",icon:"🫘",color:"#67e8f9",ids:[159,160,169,211,215,216,256]},
+  {id:"oftalmo",name:"Oftalmologia",icon:"👁️",color:"#f472b6",ids:[220]},
+  {id:"chirurgia",name:"Chirurgia e Anatomia",icon:"🔪",color:"#fdba74",ids:[207,224,227,246,247]},
+];
+
+const Q=[
+{id:1,q:"FAST valuta ecograficamente:",opts:["Pericardio","Pelvi","Fianco sx e dx","Tutte le risposte"],ans:3,why:"4 regioni standardizzate: pericardio, pelvi, fianco dx (Morrison) e sx (Koller).",memo:"FAST = 4 finestre per il liquido libero."},
+{id:2,q:"Ruolo dell'endoscopia nel volvolo del sigma:",opts:["Solo senza anticoagulanti","Solo decompressione","Decompressione e derotazione","È controindicata"],ans:2,why:"Serve a decomprimere e derotare.",memo:"Endoscopia = decompressione + derotazione."},
+{id:3,q:"Quando iniziare il massaggio nel BLSD adulti?",opts:["No coscienza + no respiro normale/patologico + no polso carotideo","No coscienza + no respiro + no polso","No coscienza + no respiro","No coscienza + no respiro o patologico"],ans:0,why:"Triade: no coscienza + no respiro normale (gasping = assenza) + no polso.",memo:"Tutte e tre. Il gasping conta come assenza di respiro."},
+{id:4,q:"La ventilazione polmonare è:",opts:["Nella BPCO = CPT","Somma di tutti i volumi","Volume corrente × FR","Uguale al volume corrente"],ans:2,why:"Ventilazione minuto = Vt × FR.",memo:"Vt × FR."},
+{id:5,q:"Affermazioni sul trauma vere:",opts:["I giovani sono i più colpiti","Causa la maggiore perdita di anni di vita","Prima causa di morte tra 1-44 anni","Tutte le risposte"],ans:3,why:"Tutte vere.",memo:"Trauma = malattia dei giovani. Tutte."},
+{id:6,q:"Complicanze potenziali dell'ECMO:",opts:["Sanguinamento","Emolisi","IRA","Tutte le risposte"],ans:3,why:"Circuito extracorporeo + anticoagulazione → sanguinamento, emolisi, IRA.",memo:"ECMO: sangue fuori = sanguinamento + globuli + reni."},
+{id:7,q:"La coagulopatia da trauma è causata da:",opts:["Attivazione intravascolare","Diluizione piastrine e fattori","Consumo di fattori","Tutte le risposte"],ans:3,why:"Multifattoriale: attivazione + diluizione + consumo.",memo:"Triade: Attivazione + Diluizione + Consumo."},
+{id:8,q:"L'anestesia loco-regionale è utile in:",opts:["Amputazione traumatica","Fratture da riduzione chiusa","Fratture costali multiple","Tutte le risposte"],ans:3,why:"Versatile: amputazioni, fratture, costali.",memo:"Loco-regionale = versatile. Tutte."},
+{id:9,q:"Frequenza, penetrazione e risoluzione ecografica:",opts:["↑freq → ↑penetrazione e ↑risoluzione","↓freq → ↓penetrazione e ↓risoluzione","↑freq → ↓penetrazione e ↑risoluzione","↓freq → ↑penetrazione e ↑risoluzione"],ans:2,why:"Alta frequenza = alta risoluzione ma bassa penetrazione.",memo:"Alta freq = occhi acuti ma corta vista."},
+{id:10,q:"Cefalee secondarie pericolose in PS:",opts:["Meningite, ESA, ictus post., emorragia cerebrale","Arterite Horton, CO, vasocostrizione reversibile","Grappolo, meningite, tipica, FANS-abuso","ESA, pseudo-tumori, trigemino, glaucoma"],ans:0,why:"Killer headaches: meningite, ESA, ictus posteriore, emorragia cerebrale.",memo:"Le 4 pericolose: Meningite, ESA, Ictus post., Emorragia."},
+{id:11,q:"Mottling score nella sepsi:",opts:["Correla con mortalità, utile nei primi 10 gg TI","Non è validato","Non correla con mortalità","Correla con mortalità, utile nei primi 3 gg TI"],ans:3,why:"Validato, correla con mortalità, utile per i primi 3 giorni in TI.",memo:"Mottling = chiazze cutanee. Primi 3 giorni."},
+{id:12,q:"Primo farmaco cardio-vasoattivo nella sepsi:",opts:["Adrenalina","Dobutamina","Noradrenalina","Vasopressina"],ans:2,why:"Noradrenalina. Dobutamina solo se disfunzione cardiaca.",memo:"Sepsi → Noradrenalina prima."},
+{id:13,q:"Segno TC più specifico nell'ischemia mesenterica:",opts:["Edema mucosa in anse distese","Scarsità gas colico + distensione tenue","Pneumatosi parietale e gas portale (tardivi)","Scomparsa valvulae conniventes"],ans:2,why:"Pneumatosi + gas portale = specifici ma tardivi.",memo:"Pneumatosi + gas portale = specifico ma tardivo."},
+{id:14,q:"Effetto NON causato dall'acidosi metabolica:",opts:["Riduzione contrattilità miocardica","Respiro di Kussmaul","Spostamento a destra curva Hb","Ipokaliemia"],ans:3,why:"Acidosi → K esce → IPERKALIEMIA. Ipokaliemia è l'opposto.",memo:"Acidosi → K fuori → iperK."},
+{id:15,q:"La ketamina:",opts:["Aumenta secrezioni salivari","Non deprime respiro e circolo","È ipnotico e analgesico","Tutte le risposte"],ans:3,why:"Ipnotico + analgesico, non deprime respiro/circolo, ↑secrezioni salivari.",memo:"Ketamina = tutto in uno."},
+{id:16,q:"Punti di Griffith, Sudeck e Reiner:",opts:["Punti critici vascolarizzazione intestinale","Accessi laparoscopici nel trauma","Sedi diverticoli colici","Score prognostico"],ans:0,why:"Zone di confine tra territori vascolari.",memo:"Griffith-Sudeck-Reiner = punti ciechi vascolari."},
+{id:17,q:"Effetti della ventilazione a pressione positiva:",opts:["Migliore ossigenazione","Minor lavoro respiratorio","Reclutamento alveolare","Tutte le risposte"],ans:3,why:"↑O2, ↓lavoro, recluta alveoli.",memo:"PPV: O2 su, lavoro giù, alveoli aperti."},
+{id:18,q:"EP: chi va a trombolisi EV?",opts:["Tutti i pazienti","Rischio intermedio ESC 2020","Basso rischio PESI","Pazienti in shock"],ans:3,why:"Trombolisi EV = alto rischio (shock).",memo:"Trombolisi = shock. Solo alto rischio."},
+{id:19,q:"Somministrazione di KCl EV:",opts:["Sempre solo CVC","Anche >40 mEq in periferica","In 30 min massimo","In periferica max 20 mEq"],ans:3,why:"KCl periferico: max 20 mEq.",memo:"KCl periferico ≤20 mEq."},
+{id:20,q:"Causa principale instabilità emodinamica nell'EP:",opts:["Ipossia","Ischemia VS","Disfunzione VD","Ipercapnia"],ans:2,why:"VD non espelle contro l'ostruzione → ↓CO → shock.",memo:"EP → VD in crisi → shock."},
+{id:21,q:"Il SOFA score valuta:",opts:["Resp., cardiocirc., fegato, rene, SNC, coagulazione","Sistema immunitario, cardiocirc., fegato, rene, SNC, coagulazione","Resp., cardiocirc., pancreas, rene, SNC, coagulazione","Solo resp., cardiocirc. e SNC"],ans:0,why:"6 sistemi: P/F, vasopressori, bilirubina, creatinina, GCS, piastrine.",memo:"SOFA: Respiro, Cuore, Fegato, Rene, Cervello, Sangue."},
+{id:22,q:"Artefatti pressione arteriosa invasiva:",opts:["Frequenti (~10%)","Impossibili","Rari (<3%)","Frequenti (~30%)"],ans:3,why:"Artefatti nel ~30% dei pazienti.",memo:"Invasiva: artefatti ~30%."},
+{id:23,q:"Sistema tampone più abbondante nel liquido extracellulare:",opts:["Fosfati","Proteine plasmatiche","Bicarbonati","Emoglobina"],ans:2,why:"Sistema HCO3−/CO2 = principale buffer.",memo:"Bicarbonato = tampone principale."},
+{id:24,q:"Trattamento principale dello shock settico:",opts:["Fluidi EV","Source control","Noradrenalina","Adrenalina"],ans:1,why:"Senza eliminare il focolaio, tutto il resto è supporto.",memo:"Sepsi: prima spegni l'incendio."},
+{id:25,q:"Indicazioni ECMO V-V:",opts:["Bridge trapianto polmonare","ARDS refrattaria","Disfunzione graft post-trapianto","Tutte le risposte"],ans:3,why:"ECMO V-V = supporto respiratorio puro.",memo:"VV = solo polmone."},
+{id:26,q:"Velocità correzione iponatriemia:",opts:["0,5 mEq/h","5 mEq/h","2 mEq/h","1,5 mEq/h"],ans:0,why:"Max 0,5 mEq/h per evitare mielinolisi osmotica.",memo:"Iponatriemia: 0,5 mEq/h."},
+{id:27,q:"Effetto NON causato dall'alcalosi respiratoria:",opts:["Eccitabilità neuromuscolare","Spostamento sinistra curva Hb","Vasocostrizione cerebrale","Aumento PIC"],ans:3,why:"Alcalosi resp. → ↓PIC (non aumento).",memo:"Alcalosi resp. → PIC scende."},
+{id:28,q:"Segno ecografico precoce nel tamponamento:",opts:["Collasso sistolico AD","Collasso diastolico AD","Sbandamento setto IV verso VS","Collasso VS"],ans:1,why:"Collasso DIASTOLICO AD.",memo:"Precoce = diastolico."},
+{id:29,q:"Lung sliding presente:",opts:["Segno specifico COVID-19","Identifica PNX","Permette di escludere PNX","Segno del mesotelioma"],ans:2,why:"Sliding → polmone espanso → no PNX.",memo:"Sliding c'è = niente PNX."},
+{id:30,q:"Misurazione pressione intraddominale più diffusa:",opts:["Pressione intracranica","Pressione dopo laparotomia","Pressione sistolica/peso","Pressione intravescicale"],ans:3,why:"Pressione intravescicale = standard.",memo:"Pressione addominale = si misura in vescica."},
+{id:31,q:"Intubazione nel politraumatizzato:",opts:["Iperestensione della testa","Si passa dal naso","Si usa il fibroscopio","MILS"],ans:3,why:"Sospetta lesione cervicale → MILS.",memo:"Politrauma = MILS, mai estendere."},
+{id:32,q:"La PEEP:",opts:["Non ha effetto sulla vasocostrizione ipossica","Riduce la vasocostrizione ipossica","Aumenta la vasocostrizione ipossica","Nessuna"],ans:1,why:"PEEP → ↑O2 → ↓vasocostrizione polmonare.",memo:"PEEP apre alveoli → meno vasocostrizione ipossica."},
+{id:33,q:"Trattamento ipermagnesemia:",opts:["Calcio cloruro","Soluzione salina","Albumina","Ringer lattato"],ans:0,why:"Calcio cloruro EV antagonizza il magnesio.",memo:"Ipermagnesemia → Calcio."},
+{id:34,q:"Quando iniziare il massaggio nel BLSD-pediatrico?",opts:["Dopo 2 atti respiratori","Dopo assenza polso","Dopo assenza coscienza e respiro","Dopo 5 respirazioni di salvataggio"],ans:3,why:"Prima 5 ventilazioni, poi 15:2.",memo:"Bambino = prima 5 soffi, poi 15:2."},
+{id:35,q:"Esame bed-side essenziale nella diagnosi differenziale dello shock:",opts:["Ecografia cardiaca","Misurazione PA","PaO2","RX torace"],ans:0,why:"Eco cardiaca identifica tipo di shock.",memo:"Shock = eco cuore subito."},
+{id:36,q:"PVC nello shock ipovolemico:",opts:["Ridotta nello shock ostruttivo","Aumentata nello shock ipovolemico","Ridotta nello shock cardiogeno","Ridotta nello shock ipovolemico"],ans:3,why:"Ipovolemico → vene vuote → PVC ridotta.",memo:"PVC bassa = serbatoio vuoto = ipovolemico."},
+{id:37,q:"Trattamento iniziale PNX traumatico:",opts:["RX e TC torace","Ossigenoterapia","Osservazione","Drenaggio pleurico"],ans:3,why:"PNX traumatico = drenaggio.",memo:"PNX traumatico → drena."},
+{id:38,q:"Rilievo alla rachicentesi indicativo di ESA:",opts:["↑rapporto LDH liquor/plasma","Xantocromia","Proteinoracchia","Ipoglicoracchia"],ans:1,why:"Xantocromia = giallo del liquor. Patognomonico ESA.",memo:"Xantocromia = giallo nel liquor = ESA."},
+{id:39,q:"Condizione presente nel tamponamento cardiaco:",opts:["Versamento pericardico circonferenziale","Presenza di polso paradosso","Versamento >2 cm","Versamento >3 cm"],ans:1,why:"Tamponamento = versamento + polso paradosso.",memo:"Tamponamento = versamento + polso paradosso."},
+{id:40,q:"La ventilazione protettiva:",opts:["Solo in BPCO","Riduce il danno polmonare legato alla ventilazione","Solo in chirurgia toracica","Nessuna"],ans:1,why:"Riduce VILI per tutti i ventilati.",memo:"Protettiva = protegge il polmone dal ventilatore."},
+{id:41,q:"La PEEP:",opts:["Non può superare 10 cmH2O","Pressione vie aeree a fine espirazione forzata","È sinonimo di air trapping","Può causare ipotensione nel paziente ipovolemico"],ans:3,why:"PEEP + ipovolemia → ↓ritorno venoso → ipotensione.",memo:"PEEP + ipovolemia = pressione giù."},
+{id:42,q:"Il trauma è:",opts:["Non pericoloso","Un'alterazione grave","Insieme di alterazioni da forza esterna (meccanica, chimica, termica)","Conseguenza di un incidente"],ans:2,why:"Definizione ampia: alterazioni da forza esterna.",memo:"Trauma = alterazione da forza esterna."},
+{id:43,q:"Segno ECG più frequente nell'EP:",opts:["Rsr'","S1Q3T3","BBD","Tachicardia sinusale"],ans:3,why:"Tachicardia sinusale è il più frequente.",memo:"EP + ECG = tachicardia sinusale."},
+{id:44,q:"FAST:",opts:["Alta sensibilità per liquido in addome","Bassa sensibilità","Identifica anche piccole quantità","Assenza urine discrimina strutture pelviche"],ans:0,why:"FAST: alta sensibilità per liquido >100 ml.",memo:"FAST = sensibile per il liquido."},
+{id:45,q:"I lattati nei pazienti in shock:",opts:["Aumentano solo con ipossia tessutale","Non hanno rilevanza","Hanno valore prognostico negativo","Sono specifici dello shock"],ans:2,why:"Valore prognostico negativo + monitoraggio.",memo:"Lattati alti = paziente in pericolo."},
+{id:46,q:"ECG nel tamponamento cardiaco:",opts:["Più sensibile dell'eco","Senza alterazioni non si può fare diagnosi","Alta specificità","Bassa sensibilità"],ans:3,why:"ECG nel tamponamento ha BASSA sensibilità.",memo:"Tamponamento = diagnosi ecografica, non ECG."},
+{id:47,q:"Trattamento dell'ipercalcemia:",opts:["Chelanti del calcio","Furosemide","Spironolattone","Magnesio"],ans:1,why:"Idratazione salina + furosemide. ⚠️ Le LG attuali privilegiano l'idratazione; furosemide non è più prima linea isolata.",memo:"Ipercalcemia: idrata + furosemide.",flag:true},
+{id:48,q:"Parametri EP a rischio intermedio-alto (ESC):",opts:["PA normale, tachicardia, disfunzione VD, troponina elevata","PA >180/100, VD normale, troponina elevata","PA normale, bradicardia, no disfunzione VD, troponina elevata","PA <90, no disfunzione VD, troponina elevata"],ans:0,why:"PA normale + disfunzione VD + troponina elevata.",memo:"Intermedio-alto = PA ok + VD + troponina su."},
+{id:49,q:"Flail chest:",opts:["Fratture costali con IRA","Frattura coste in ≥2 punti con movimento paradosso","Frattura coste e sterno","Dolore post-traumatico"],ans:1,why:"Segmento instabile → movimento paradosso.",memo:"Volet = finestra che sbatte al contrario."},
+{id:50,q:"Fase 1 della DCS:",opts:["Laparotomia abbreviata ≤60 min","Recupero riserva fisiologica in TI","Trattamento definitivo","Tutte"],ans:0,why:"Fase 1 = laparotomia ≤60 min. Solo controllo danni.",memo:"Fase 1 DCS = ≤60 min."},
+{id:51,q:"Onde T a tenda all'ECG:",opts:["Ipercalcemia","Iperkaliemia","Ipernatriemia","Ipokaliemia"],ans:1,why:"Onde T alte, appuntite = iperkaliemia.",memo:"T a tenda = K alto."},
+{id:52,q:"Le linee A:",opts:["Indicano PNX","Indice di patologia","Escludono PNX","Artefatti orizzontali non patologici"],ans:3,why:"Linee A = artefatti orizzontali non patologici.",memo:"Linee A = orizzontali = Aria."},
+{id:53,q:"Rapida somministrazione di CaCl EV:",opts:["Bruciore al sito","Tachicardia","Bradicardia","Dolore toracico"],ans:2,why:"Calcio rapido EV → bradicardia.",memo:"Calcio rapido EV → bradicardia."},
+{id:54,q:"PA non invasiva:",opts:["Sovrastima valori bassi","Più precisa dell'invasiva","Richiede cannula arteriosa","Sovrastima valori alti"],ans:0,why:"Sovrastima bassi e sottostima alti.",memo:"Non invasiva: mente in alto e in basso."},
+{id:55,q:"EP senza instabilità, con disfunzione VD:",opts:["Somministrare 80 mg ASA","Troponina aiuta a stratificare","Paziente può essere dimesso","NT-proBNP aiuta a stratificare"],ans:1,why:"Troponina = danno miocardico.",memo:"Troponina = danno. BNP = stress."},
+{id:56,q:"Fattori favorenti emboli nell'ischemia mesenterica:",opts:["Aritmie cardiache","IMA recente","Disturbi valvolari","Tutte le risposte"],ans:3,why:"FA + IMA recente + valvulopatie.",memo:"Emboli mesenterici: FA + IMA + valvulopatie."},
+{id:57,q:"FAST è acronimo di:",opts:["Eco nel trauma in sedi standardizzate","Trattamento immediato trauma toracico","RX standard torace","Esame veloce nel trauma"],ans:0,why:"FAST = Focused Assessment with Sonography in Trauma.",memo:"FAST = eco mirato. 'Focused'."},
+{id:58,q:"Indicazioni assolute alla laparotomia nel trauma:",opts:["Instabilità emodinamica da causa addominale","Ferite penetranti","Peritonismo","Tutte le risposte"],ans:3,why:"Instabilità + penetranti + peritonismo.",memo:"Laparotomia: instabilità + penetrante + peritonismo."},
+{id:59,q:"La contusione polmonare:",opts:["Non causa quasi mai IRA","Necessita drenaggio","Non ha rilevanza","Massima espressione a 48h"],ans:3,why:"Edema polmonare: picco ~48 ore.",memo:"Contusione polmonare: il peggio arriva dopo 48 ore."},
+{id:60,q:"Condizioni da correggere nello shock emorragico:",opts:["Acidosi","Ipotermia","Coagulopatia","Tutte le risposte"],ans:3,why:"Triade letale: acidosi + ipotermia + coagulopatia.",memo:"Triade letale: aCidosi + Cold + Coagulopatia."},
+{id:61,q:"Lacerazione epatica con sanguinamento venoso e instabilità:",opts:["Mobilizzazione completa fegato","Radiologo interventista","Resezione parenchima","Packing epatico"],ans:3,why:"Packing epatico = controllo temporaneo.",memo:"Fegato + instabilità = packing."},
+{id:62,q:"La dobutamina ha azione prevalentemente:",opts:["β-agonista","α e β-bloccante","α-agonista","α e β-agonista"],ans:0,why:"Dobutamina = β1-agonista. Inotropo positivo.",memo:"Dobutamina = beta1."},
+{id:63,q:"Il segno di McConnell:",opts:["Acinesia parete lat. VD e apice","Acinesia parete lat. VD + ipercontrattilità apice","Ipercontrattilità base VD","TAPSE >25 mm"],ans:1,why:"Acinesia parete libera VD + apice normo/ipercontrattile. Specifico EP.",memo:"McConnell: VD paralizzato alle pareti, apice balla."},
+{id:64,q:"Tipo di shock più frequente (pop. generale):",opts:["Settico","Ipovolemico","Cardiogeno","Ostruttivo"],ans:1,why:"Popolazione generale = ipovolemico.",memo:"Generale = ipovolemico. In TI = settico."},
+{id:65,q:"Sede più frequente embolia arteriosa infarto intestinale:",opts:["Tratto prox. AMS inferiore","Tratto dist. AMS superiore","Tratto prox. AMS superiore","Ramo dx colica media"],ans:2,why:"Tratto prossimale AMS.",memo:"Embolo AMS = zona prossimale."},
+{id:66,q:"La gittata cardiaca può essere misurata con:",opts:["Analisi forma d'onda PA","Ecografia","Termodiluizione","Tutte le risposte"],ans:3,why:"Tre metodi: forma d'onda, eco (VTI), termodiluizione.",memo:"CO: onda + eco + freddo."},
+{id:67,q:"Migliore accuratezza diagnostica ischemia mesenterica:",opts:["RX addome","TC spirale con contrasto","Eco color Doppler","Angio-RMN"],ans:1,why:"TC spirale con contrasto = gold standard.",memo:"Ischemia mesenterica = angio-TC."},
+{id:68,q:"Formula della DO2:",opts:["CO × SO2 × Hb × 1,37 + PaO2 × 0,03","CO × (SO2 × Hb × 1,39) + PaCO2 × 0,03","CO × (SO2 × Hb × 1,39 + PaO2 × 0,03)","CO × (SO2 × Hb × 1,39) + PaO2 × 0,06"],ans:2,why:"DO2 = CO × (SaO2 × Hb × 1,39 + PaO2 × 0,03).",memo:"DO2: 1,39 per Hb, 0,03 per PaO2."},
+{id:69,q:"Finestre cliniche per riconoscere lo shock:",opts:["PCO2, lattati, FC, FR","SpO2, diuresi, refill, deficit basi","Stato coscienza, cute, Shock Index, diuresi","GCS, lattati, PAS, score Wells"],ans:2,why:"4 finestre: coscienza, cute/CRT, Shock Index, diuresi.",memo:"4 finestre: Coscienza, Cute, Shock Index, Diuresi."},
+{id:70,q:"NOM per traumi duodeno/pancreas/vie biliari:",opts:["Solo protesi biliari endoscopiche","Protesi biliari + drenaggi addominali/biliari","Solo drenaggi percutanei","Chirurgia demolitiva"],ans:1,why:"Protesi biliari + drenaggi.",memo:"NOM = protesi + drenaggi."},
+{id:71,q:"Proiezione sottocostale:",opts:["VCS, AD, VCI, AS, setto IV","AD, AS e setto interatriale","AD, VD, setto IV, AS, VS","VD, setto IV, VS, AS, mitrale"],ans:2,why:"4 camere + pericardio + VCI.",memo:"Sottocostale = 4 camere dal basso."},
+{id:72,q:"Causa principale instabilità nell'EP (dom. 72):",opts:["Ipossia","Disfunzione VD","Ischemia VS","Ipercapnia"],ans:1,why:"Disfunzione VD → ↓CO → shock.",memo:"EP → VD in crisi → shock."},
+{id:73,q:"Sede più sicura per drenaggio pleurico:",opts:["Sottoclaveare","Triangolo ascellare (safety triangle)","Parasternale","Sottoxifoidea"],ans:1,why:"Safety triangle.",memo:"Drenaggio pleurico: safety triangle."},
+{id:74,q:"Dose adrenalina EV nell'arresto da LAST:",opts:["1 mg EV","3 mg EV","2 mg EV","≤1 mcg/kg EV"],ans:3,why:"Dose ridotta ≤1 mcg/kg.",memo:"LAST + arresto = adrenalina ≤1 mcg/kg."},
+{id:75,q:"FAST+ (Morrison), paziente stabile:",opts:["Sala operatoria immediata","TC addome diretta","Monitoraggio clinico","TC addome con mdc"],ans:3,why:"Stabile + FAST+ → TC con mdc.",memo:"Stabile + FAST+ = TC con mdc."},
+{id:76,q:"PIC da trattare se superiore a:",opts:["10 mmHg","22 mmHg","15 mmHg","Nessuna"],ans:1,why:"PIC > 22 mmHg → trattamento.",memo:"PIC > 22 = tratta."},
+{id:77,q:"Terapia EP ad alto rischio:",opts:["Trombolisi + antiaggregazione","Solo anticoagulazione","Trombolisi + anticoagulazione con ENF","Intubazione + VM"],ans:2,why:"Trombolisi + eparina non frazionata.",memo:"EP alto rischio = trombolisi + eparina."},
+{id:78,q:"Il polso paradosso rappresenta:",opts:["↑PAS >10 mmHg in inspirazione","↓PAS >20 mmHg in espirazione","↑PAS >20 mmHg in inspirazione","↓PAS >10 mmHg in inspirazione"],ans:3,why:"↓PAS >10 mmHg in inspirazione.",memo:"Polso paradosso: PAS cala >10 mmHg in inspirazione."},
+{id:79,q:"Nel trauma facciale severo è indicata:",opts:["Sondino naso-gastrico","Maschera laringea","NIV","Cricotiroidotomia"],ans:3,why:"Cricotiroidotomia = via chirurgica.",memo:"Trauma facciale = cricotiroidotomia."},
+{id:80,q:"L'acido tranexamico:",opts:["È un antiacido","È un antifibrinolitico","È un fibrinolitico","Va per via venosa centrale"],ans:1,why:"Antifibrinolitico. Entro 3 ore dal trauma.",memo:"TXA = anti-fibrinolisi. Entro 3 ore."},
+{id:81,q:"Il qSOFA include:",opts:["Resp., fegato, cardiocirc.","Resp., SNC, rene","Rene, SNC, cardiocirc.","Resp., SNC, cardiocirc."],ans:3,why:"qSOFA: FR≥22, GCS<15, PAS≤100.",memo:"qSOFA: Respiro + Cervello + Pressione."},
+{id:82,q:"La pressione arteriosa polmonare:",opts:["Si misura nelle vene polmonari","Ridotta nello shock cardiogeno","Aumentata nello shock ipovolemico","Si misura in arteria polmonare col Swan-Ganz"],ans:3,why:"Swan-Ganz: vena → cuore dx → arteria polmonare.",memo:"Swan-Ganz: vena → cuore dx → arteria polmonare."},
+{id:83,q:"Mortalità per sepsi in TI:",opts:["35%","40%","20%","2%"],ans:0,why:"~35% in TI. Globale ~25%.",memo:"Sepsi in TI = 35%."},
+{id:84,q:"Cefalea acuta da escludere rapidamente in PS:",opts:["ESA","Cefalea tensiva","Emicrania","Cefalea da ipotensione liquorale"],ans:0,why:"ESA = più pericolosa.",memo:"Cefalea acuta grave = ESA finché non dimostri il contrario."},
+{id:85,q:"La diagnosi di shock comprende:",opts:["PAS <90 + segni ipoperfusione","Solo lattati elevati","Solo tachicardia","Solo PA bassa"],ans:0,why:"PA <90 + segni clinici E laboratoristici.",memo:"Shock = PA bassa + ipoperfusione."},
+{id:86,q:"Le linee B:",opts:["Artefatti orizzontali patologici","Artefatti verticali patologici dalla linea pleurica che si muovono col respiro","Indicano necessità di ottimizzare la volemia","Assenza esclude PNX"],ans:1,why:"Linee B = verticali, patologiche, interstizio bagnato.",memo:"Linee B = verticali = Bagnato."},
+{id:87,q:"Velocità accumulo versamento pericardico:",opts:["Aumenta lentamente","Rapido in patologia oncologica","Irrilevante","Importante per onset e gravità"],ans:3,why:"200 ml in minuti = tamponamento.",memo:"Velocità > quantità nel tamponamento."},
+{id:88,q:"EFAST NON valuta:",opts:["Pericardio","Pancreas","Polmone","Fianco sx e dx"],ans:1,why:"EFAST = FAST + polmone. Pancreas non accessibile.",memo:"EFAST = FAST + polmone."},
+{id:89,q:"Terapia supporto nel tamponamento in attesa di pericardiocentesi:",opts:["Inotropi","Riempimento volemico + vasopressori","Intubazione","Diuretici"],ans:1,why:"Riempimento + vasopressori. MAI diuretici.",memo:"Tamponamento: riempi + vasopressori. MAI diuretici."},
+{id:90,q:"Effetti collaterali più comuni degli oppioidi:",opts:["Insufficienza respiratoria","Sedazione","Ritenzione urinaria","Nausea, vomito, ileo paralitico"],ans:3,why:"Tutti: depressione resp., sedazione, ritenzione, GI.",memo:"Oppioidi: Respiro + sonno + urine + intestino."},
+{id:91,q:"Per definizione di sepsi, incremento del:",opts:["ASA score di 3","APACHE 2 di 3","SAPS di 2","SOFA score di 2"],ans:3,why:"Sepsis-3: infezione + SOFA +2.",memo:"Sepsi = infezione + SOFA +2."},
+{id:92,q:"Affermazione FALSA sul trauma cranico severo:",opts:["Edema vasogenico/citotossico → ↑PIC","Outcome dipende da danno primario e secondario","Intubazione indicata con GCS <11","Danno assonale diffuso se >3 zone"],ans:2,why:"Intubazione con GCS ≤8, non <11.",memo:"Intubazione a GCS ≤8."},
+{id:93,q:"Target MAP nella sepsi:",opts:["60 mmHg","70 mmHg","55 mmHg","65 mmHg"],ans:3,why:"MAP target = 65 mmHg.",memo:"MAP target = 65 mmHg."},
+{id:94,q:"Causa più frequente di ischemia intestinale:",opts:["Trombosi venosa","Embolia arteriosa","Ischemia funzionale","Trombosi arteriosa"],ans:1,why:"Embolia arteriosa ~50%.",memo:"Ischemia intestinale = embolia arteriosa per prima."},
+{id:95,q:"LAST:",opts:["Esordisce con sintomi respiratori","Solo se volume >40 ml","Intralipid 20% 1,5 ml/kg EV = prima scelta nei gravi","Sindrome transitoria con O2"],ans:2,why:"LAST grave: Intralipid 20% 1,5 ml/kg EV.",memo:"LAST = Intralipid 20%, 1,5 ml/kg."},
+{id:96,q:"Affermazione VERA riguardo al trauma cranico:",opts:["Ipertermia di difficile trattamento possibile","Ipotermia terapeutica è routine","Febbre indica sempre infezione","Craniectomia se PIC >22 per >2h"],ans:0,why:"Ipertermia neurogenica possibile. Ipotermia NON è routine.",memo:"Trauma cranico → ipertermia neurogenica possibile."},
+{id:97,q:"Addome acuto 'senza addome acuto':",opts:["Non associato a vomito/diarrea","Discordanza sintomi e RX","Discordanza sintomi e obiettività addominale","Discordanza sintomi e laboratorio"],ans:2,why:"Dolore violento ma addome trattabile = ischemia mesenterica precoce.",memo:"Dolore urla, pancia tace = ischemia mesenterica."},
+{id:98,q:"CaCl EV nell'iperkaliemia:",opts:["In 1 min massimo","Riduce eccitabilità miocardica","Facilita eliminazione renale di K","Facilita shift intracellulare di K"],ans:1,why:"Calcio = stabilizzatore di membrana. NON abbassa il K.",memo:"Calcio = stabilizzatore. Non abbassa il K."},
+{id:99,q:"Gittata cardiaca nello shock ipovolemico:",opts:["Aumentata nello shock ostruttivo","Aumentata nello shock ipovolemico","Ridotta nello shock settico","Ridotta nello shock ipovolemico"],ans:3,why:"Ipovolemico → ↓precarico → ↓CO.",memo:"Ipovolemico: serbatoio vuoto → cuore pompa meno."},
+{id:100,q:"La noradrenalina è:",opts:["α e β-agonista","α-agonista","β-agonista","α e β-bloccante"],ans:0,why:"Risposta come da file: A. ⚠️ Farmacologicamente prevalentemente α con modesta β1.",memo:"⚠️ File: α e β-agonista. Prevalentemente α.",flag:true},
+{id:101,q:"Lo spazio morto è:",opts:["Somma spazio morto anatomico + alveolare","Un tessuto ischemico","Un addensamento infettivo","Equivale alla superficie alveolare"],ans:0,why:"Spazio morto = anatomico + alveolare.",memo:"Spazio morto = anatomico + alveolare."},
+{id:102,q:"Causa più frequente di shock distributivo:",opts:["Anafilassi","Trauma cranico","Sepsi","Nessuna"],ans:2,why:"Sepsi domina.",memo:"Distributivo = sepsi prima."},
+{id:103,q:"Fluidi nella rianimazione del paziente settico:",opts:["Destrani","NaCl 0,9%","Amidi idrossietilici","Cristalloidi bilanciati"],ans:3,why:"Cristalloidi bilanciati.",memo:"Sepsi: cristalloidi bilanciati."},
+{id:104,q:"Causa più frequente di arresto cardiaco in età pediatrica:",opts:["Anafilassi","Cardiopatia ischemica","Trauma","Insufficienza respiratoria ipossiemica"],ans:3,why:"Causa respiratoria ipossiemica.",memo:"Bambino: l'arresto viene dai polmoni."},
+{id:105,q:"Shock settico: lattati sierici:",opts:[">2 mEq/L",">6 mg/dl",">3 mmol/L",">2 mmol/L"],ans:3,why:"Sepsis-3: lattati >2 mmol/L.",memo:"Shock settico: lattati >2 mmol/L."},
+{id:106,q:"La diagnosi di shock richiede:",opts:["PAS <100 mmHg","FC <50 bpm","PA <90 + evidenza clinica/lab di ipoperfusione","Lattati >2 mmol/L isolati"],ans:2,why:"PA <90 + ipoperfusione clinica + laboratorio.",memo:"Shock = PA bassa + ipoperfusione."},
+{id:107,q:"Durante l'ECMO:",opts:["È indicato ridurre i parametri di ventilazione","Non ridurre i parametri","Si somministra FiO2=1","Si riduce PEEP a 0"],ans:0,why:"Lung rest: ↓Vt, ↓PEEP, ↓FiO2.",memo:"ECMO acceso = polmone in vacanza."},
+{id:108,q:"Gli HFNC:",opts:["Permettono wash-out CO2 orofaringeo","Consentono FiO2 precisa","Possono ridurre il lavoro respiratorio","Tutte le risposte"],ans:3,why:"Tutti i benefici + piccola PEEP fisiologica.",memo:"HFNC: lava CO2, O2 preciso, riduce lavoro."},
+{id:109,q:"Meccanismo NON favorente effetto inotropo della noradrenalina:",opts:["Effetto Anrep","Effetto Bohr","Effetto β1-agonista","↑perfusione coronarica"],ans:1,why:"Effetto Bohr = spostamento curva Hb. Non riguarda l'inotropismo.",memo:"Effetto Bohr = curva Hb, non inotropismo."},
+{id:110,q:"Paziente traumatizzato con pupille dilatate non reagenti:",opts:["Sospettare compressione III nervo cranico","Sospettare intossicazione da oppioidi","Escludere danno cerebrale","Nessuna"],ans:0,why:"Midriasi fissa = III NC (erniazione). Oppioidi → MIOSI.",memo:"Midriasi fissa = III nervo = erniazione."},
+{id:111,q:"Fase I della DCS:",opts:["Trattamento definitivo","Laparotomia abbreviata ≤60 min","Recupero riserva fisiologica in TI","Tutte"],ans:1,why:"Solo controllo danni ≤60 min.",memo:"Fase 1 DCS = veloce <60 min."},
+{id:112,q:"Ritmo defibrillabile nell'arresto extra-ospedaliero pediatrico:",opts:["Tra 4% e 8,5%","Tra 30% e 50%","Maggiore del 30%","10%"],ans:0,why:"FV/TV senza polso rara (4-8,5%).",memo:"Bambini: ritmo defibrillabile raro (4-8,5%)."},
+{id:113,q:"Arresto cardiaco adulto a letto:",opts:["Posizionare sul pavimento","Sconsigliato spostare","Eseguire 45 compressioni","Eseguire 15 compressioni"],ans:0,why:"Il massaggio richiede piano rigido.",memo:"Massaggio su piano rigido."},
+{id:114,q:"Il catetere di Swan-Ganz:",opts:["Cateterismo vene polmonari","Cateterismo arteria polmonare","Si posiziona in arteria femorale","Si posiziona in VCI"],ans:1,why:"Vena centrale → cuore dx → arteria polmonare.",memo:"Swan-Ganz: vena → cuore dx → arteria polmonare."},
+{id:115,q:"I lattati nella gestione dello shock:",opts:["Utili per origine multifattoriale","Utili per verificare efficacia del trattamento","Non misurabili senza laboratorio","Fuorvianti"],ans:1,why:"Monitoraggio risposta al trattamento.",memo:"Lattati: monitorali nel tempo."},
+{id:116,q:"Capillary refill time normale:",opts:[">3 sec","<3 sec",">2 sec","<2 sec"],ans:3,why:"CRT normale <2 sec.",memo:"CRT normale <2 sec."},
+{id:117,q:"Un paziente è fluid responder se:",opts:["Gittata ↑ ≥10-15% dopo bolo EV","Diuresi aumenta","FC si riduce","PA aumenta"],ans:0,why:"CO aumenta ≥10-15% dopo fluidi.",memo:"Fluid responder = gittata aumenta dopo fluidi."},
+{id:118,q:"Instabilità + EP: eco VD normale:",opts:["Iniziare trombolisi e poi angio-TC","Eco VD normale esclude EP","VD normale → EP non è causa principale dell'instabilità","Eseguire sempre angio-TC"],ans:2,why:"VD normale → cercare altra causa.",memo:"VD ok + instabilità = EP non è la causa principale."},
+{id:119,q:"Gli inibitori COX-2:",opts:["Minor rischio lesioni gastriche","Minor effetto antiaggregante","A lungo termine ↑rischio CV","Tutte le risposte"],ans:3,why:"Stomaco salvo, meno antiaggregazione, ↑rischio CV.",memo:"COX-2: stomaco salvo, cuore a rischio."},
+{id:120,q:"TXA efficace se somministrato:",opts:["Indipendentemente dal tempo","Entro 5 ore","Entro 3 ore","Entro 1 ora"],ans:2,why:"Entro 3 ore.",memo:"TXA: entro 3 ore."},
+{id:121,q:"La maschera di Venturi:",opts:["Monitora flussi respiratori","Somministra FiO2 precisa","Consente ventilazione a pressione positiva","Nessuna"],ans:1,why:"FiO2 precisa (24-60%).",memo:"Venturi = FiO2 precisa."},
+{id:122,q:"Noradrenalina in vena periferica:",opts:["Sconsigliata ma possibile","Vietata","Consigliata","Accettabile per breve periodo"],ans:3,why:"Accettabile brevemente in emergenza.",memo:"NorA periferica: accettabile breve periodo."},
+{id:123,q:"Acidosi metabolica con anion gap normale:",opts:["Insufficienza epatica","Somministrazione di NaCl 0,9%","Acidosi lattica","DKA"],ans:1,why:"NaCl 0,9% → acidosi ipercloremica con AG normale.",memo:"Fisiologica massiccia = acidosi AG normale."},
+{id:124,q:"Mortalità globale per sepsi:",opts:["5%","10%","35%","25%"],ans:3,why:"Globale ~25%. TI ~35%.",memo:"Sepsi globale = 25%."},
+{id:125,q:"Il Doppler pulsato (PW):",opts:["Misura alte velocità","Angolo non corretto → sovrastima","Misura migliore con angolo perpendicolare","Misura velocità in un punto preciso"],ans:3,why:"PW = un PUNTO preciso. CW = tutta la linea.",memo:"Doppler pulsato = punto preciso."},
+{id:126,q:"Il lung-point:",opts:["Presente → diagnosi PNX","Segno del mesotelioma","Esclude PNX","Identifica fibrosi pleurica"],ans:0,why:"Lung point = confine polmone collassato/espanso. SPECIFICO di PNX.",memo:"Lung point = confine del PNX."},
+{id:127,q:"Segno più presente nel tamponamento cardiaco:",opts:["Tachicardia e polso paradosso","Ipotensione e tachicardia","Segno di Kussmaul e ipotensione","Epatomegalia e ↑PVC"],ans:0,why:"Tachicardia + polso paradosso = più frequenti.",memo:"Tamponamento: tachicardia + polso paradosso."},
+{id:128,q:"NIV con casco:",opts:["Paziente può parlare, tossire, interagire","Indicata nel paziente in coma","Richiede sedazione profonda","Spazio morto minimo"],ans:0,why:"Libertà del paziente. Non richiede sedazione.",memo:"Casco NIV: libertà del paziente."},
+{id:129,q:"Velocità accumulo versamento pericardico:",opts:["Rapido in oncologia","Irrilevante","Aumenta lentamente","Importante per onset e gravità"],ans:3,why:"Velocità > quantità.",memo:"Velocità > quantità nel tamponamento."},
+{id:130,q:"Controindicazioni assolute trombolisi per EP:",opts:["Ictus ischemico nei 6 mesi + neoplasie cerebrali","Trauma/chirurgia <3 mesi, coagulopatie, sanguinamento","Storia di ictus emorragico o ignoto","Tutte le risposte"],ans:3,why:"Tutte e tre.",memo:"Trombolisi controindicata: tutte."},
+{id:131,q:"Lo shock ostruttivo può essere causato da:",opts:["PNX iperteso","EP massiva","Tamponamento cardiaco","Tutte le risposte"],ans:3,why:"PNX iperteso + EP + tamponamento.",memo:"Ostruttivo = PNX + EP + Tamponamento."},
+{id:132,q:"Incidenza OHCA nella popolazione adulta:",opts:["200/100.000","20-53/100.000","67-170/100.000","20/100.000"],ans:2,why:"67-170 per 100.000 ab./anno.",memo:"OHCA: 67-170 per 100.000."},
+{id:133,q:"Parasternale asse corto:",opts:["VS e tratto efflusso VS","AD, VD, tricuspide, arteria polmonare","AD, AS e setto interatriale","VD, VS, setto IV a livello basale, medio-papillare e apicale"],ans:3,why:"Sezioni trasversali: VD + VS + setto IV.",memo:"Asse corto = fette trasversali del cuore."},
+{id:134,q:"Posizionamento cannule ECMO:",opts:["Radiografia","Eco transesofagea","Eco transtoracica","Tutte le risposte"],ans:3,why:"RX + eco per conferma multipla.",memo:"ECMO cannule: RX + eco."},
+{id:135,q:"Dose eparina nell'EP ad alto rischio:",opts:["30 UI/kg bolo + 60 UI/kg/h","80 UI/kg bolo + 18 UI/kg/h","28 UI/kg bolo + 80 UI/kg/h","100 UI/kg + 50 UI/kg/h"],ans:1,why:"80 UI/kg bolo, poi 18 UI/kg/h.",memo:"Eparina EP: 80 bolo, poi 18/ora."},
+{id:136,q:"Parasternale asse lungo:",opts:["Asse cardiaco, VD, setto IV, VS, AS","VD, AD, tricuspide, setto IV, VS, AS, mitrale","VD, setto IV, VS, AS, mitrale, tratto efflusso VS","VCS, AD, VCI, AS, setto IV"],ans:2,why:"VD, setto, VS, AS, mitrale, efflusso VS.",memo:"Asse lungo = cuore di profilo."},
+{id:137,q:"Causa più frequente di shock in TI:",opts:["Settico","Ipovolemico","Anafilattico","Cardiogeno"],ans:0,why:"In TI = settico.",memo:"TI = settico primo."},
+{id:138,q:"La Fluid Responsiveness:",opts:["Dipende solo dal precarico VS","È sinonimo di ipervolemia","È sinonimo di ipovolemia","Dipende anche dalla contrattilità miocardica VS"],ans:3,why:"Precarico + contrattilità VS.",memo:"Fluid responsiveness = precarico + contrattilità."},
+{id:139,q:"Nell'ECMO V-A:",opts:["Non è necessaria anticoagulazione","Solo supporto respiratorio","Solo supporto cardiaco","Cannulazione femorale spesso richiede cannula di reperfusione distale"],ans:3,why:"Sempre anticoagulazione + cannula distale in femorale.",memo:"ECMO V-A: anticoagula sempre. Femorale = cannula distale."},
+{id:140,q:"La gittata cardiaca:",opts:["Misurabile con eco TT o TE","Non misurabile senza PVC","Non stimabile dall'analisi forma d'onda PA","Solo con termodiluizione"],ans:0,why:"Eco TT o TE (VTI × area tratto di efflusso).",memo:"Gittata: eco TT o TE funziona."},
+{id:141,q:"Fratture costali multiple con volet: trattamento scelta:",opts:["Analgesia epidurale toracica","Tramadolo","Morfina EV","Paracetamolo e FANS"],ans:0,why:"Epidurale toracica: riduce splintizzazione.",memo:"Fratture costali gravi = epidurale toracica."},
+{id:142,q:"Sintomi d'esordio più frequenti nell'EP:",opts:["Ipossia e dolore toracico","Polso paradosso e ipercapnia","BBD e ipossia","Dispnea e tachicardia"],ans:3,why:"Dispnea (80-90%) e tachicardia.",memo:"EP: dispnea + tachicardia."},
+{id:143,q:"Obiettivo principale terapia del dolore:",opts:["Dolore <5/10 NPS","Buona analgesia per recupero funzionale","Eliminare il dolore","Dolore <3/10 NPS"],ans:1,why:"Non azzerare: permettere la funzione.",memo:"Dolore: non azzerare, ma permettere la funzione."},
+{id:144,q:"Maschera con reservoir - affermazione VERA:",opts:["Deve essere collegata a una fonte di O2","Max 6 L/min","Solo per ipossia lieve","Tutte"],ans:0,why:"Collegata a O2 ≥10-15 L/min.",memo:"Reservoir: collegata a O2, alti flussi."},
+{id:145,q:"Causa più frequente di ipercalcemia:",opts:["Iperparatiroidismo","Neoplasie maligne","Ipervitaminosi D","IRC"],ans:0,why:"Iperparatiroidismo primitivo.",memo:"Ipercalcemia: iperparatiroidismo primo."},
+{id:146,q:"Nel BLSD pediatrico si alternano:",opts:["15 compressioni e 2 atti","10 compressioni e 2 atti","30 compressioni e 5 atti","15 compressioni e 5 atti"],ans:0,why:"5 ventilazioni iniziali, poi 15:2.",memo:"Bimbo: 5 soffi iniziali, poi 15:2."},
+{id:147,q:"La SvO2:",opts:["Dipende solo dalla CO","È la saturazione Hb nel sangue venoso in arteria polmonare","Si misura agli arti","Aumenta con ridotto apporto O2 tissutale"],ans:1,why:"SvO2 = sangue venoso misto in arteria polmonare.",memo:"SvO2 = arteria polmonare."},
+{id:148,q:"Instabilità + EP: eco VD normale (dom. 148):",opts:["Eseguire sempre angio-TC","VD normale → EP non è causa principale","VD normale esclude EP","Trombolisi e poi angio-TC"],ans:1,why:"VD normale → cercare altra causa.",memo:"VD ok + instabilità = EP non è la causa principale."},
+{id:149,q:"Il Doppler continuo (CW):",opts:["Misura basse velocità","Angolo non corretto → sovrastima","Misura velocità lungo tutta la linea","Misura migliore con angolo perpendicolare"],ans:2,why:"CW = velocità lungo TUTTA la linea.",memo:"CW = tutta la linea."},
+{id:150,q:"Proiezione apicale 4 camere:",opts:["AS, efflusso VS, VS, aorta","AS, efflusso VS, VS, AD, VD","AS, VS, AD, VD","VD, setto IV, VS, AS, mitrale, efflusso VS"],ans:2,why:"4C: AS+VS sinistra, AD+VD destra.",memo:"Apicale 4C = le 4 stanze del cuore."},
+{id:151,q:"Furosemide in EP acuto nell'IRC in dialisi:",opts:["Permette di ritardare la dialisi","Mai, è controindicata","Solo con diuresi residua","Per azione vasodilatatrice"],ans:2,why:"Utile solo se c'è diuresi residua.",memo:"Furosemide in dialisi: solo se diuresi residua."},
+{id:152,q:"Onde U all'ECG nell'ipokaliemia:",opts:["Negative, seguono onde P","Positive, seguono onde T","Negative, seguono onde T","Positive, seguono onde P"],ans:1,why:"Onde U = positive, seguono le T.",memo:"Onde U: positive, dopo le T = K basso."},
+{id:153,q:"La TRALI:",opts:["È un ALI traumatico","È la Transfusion-Related Acute Lung Injury","Incompatibilità materno-fetale","Incompatibilità di gruppo sanguigno"],ans:1,why:"TRALI = danno polmonare acuto da trasfusione.",memo:"TRALI = polmoni + trasfusione."},
+{id:154,q:"Triage Toscana - codici 3, 4, 5:",opts:["Casistica più frequente","Complessità (utilizzo risorse)","Giudizio del medico","Gravità"],ans:1,why:"In base alla complessità.",memo:"Codici 3-4-5: complessità = risorse usate."},
+{id:155,q:"Vie aeree del paziente pediatrico:",opts:["Criticità nel tratto faringo-laringeo","Non hanno differenze dall'adulto","Rischio costante di intubazione difficile","Rischio costante di IRA in infezione"],ans:0,why:"Laringe più anteriore e craniale.",memo:"Bambino: laringe in alto e davanti."},
+{id:156,q:"Il Patient Blood Management:",opts:["Approccio multimodale centrato sul paziente","Riduce solo la frequenza trasfusioni","Si occupa solo dell'emostasi","Stabilisce soglie trasfusionali indip. dal paziente"],ans:0,why:"Multimodale: ottimizza riserve, riduce perdite, usa razionalmente le trasfusioni.",memo:"PBM = paziente al centro, 360°."},
+{id:157,q:"Controindicazione assoluta alla CPAP nell'EPA:",opts:["PAS >200 mmHg","GCS <8","PaO2 <60 mmHg","Ipercapnia"],ans:1,why:"GCS <8 → rischio inalazione.",memo:"CPAP: no se GCS <8."},
+{id:158,q:"Sul PNX iperteso è corretta SOLO questa:",opts:["È causato da versamenti pleurici","Necessita di decompressione immediata","Si accompagna a ipertensione arteriosa","Non provoca alterazioni respiratorie"],ans:1,why:"Decompressione immediata. Dà IPOTENSIONE.",memo:"PNX iperteso: decompressione immediata, dà IPOtensione."},
+{id:159,q:"L'AKI:",opts:["Frequente in ospedalizzati, rara in critici","Rara nella popolazione","Frequente nella popolazione ma rara in ospedale","Frequente in ospedalizzati, 20-50% dei critici"],ans:3,why:"AKI colpisce 20-50% dei pazienti in TI.",memo:"AKI nei critici: 20-50%."},
+{id:160,q:"AKI è:",opts:["Si riferisce al trauma renale","Termine per la malattia di IRA","Solo in pazienti in dialisi","Termine per una sindrome di IRA"],ans:3,why:"AKI = SINDROME.",memo:"AKI = sindrome."},
+{id:161,q:"Donna 80a, soporosa, PA 85/50, tachicardia, catetere vescicale:",opts:["Scompenso cardiaco","Sepsi/Shock settico","Infezione vie urinarie","Alterazioni età"],ans:1,why:"Catetere + soporosa + ipotensione + tachicardia = sepsi.",memo:"Catetere + soporosa + ipotensione = sepsi."},
+{id:162,q:"Nell'IRA, prima cosa da fare dopo ABCD:",opts:["1 mEq/kg bicarbonato","Diuretici","Correggere iperkaliemia","Catetere vescicale"],ans:2,why:"Iperkaliemia → aritmie fatali → priorità.",memo:"AKI: dopo ABCD → correggi il K."},
+{id:163,q:"Soglia trasfusionale chirurgica (basso rischio):",opts:["7 g/dl con cardiopatia, 8-10 per altri","8-10 g/dl con cardiopatia, 7 g/dl per altri","Ogni centro decide","≥10 g/dl con cardiopatia, 8-10 per altri"],ans:1,why:"Cardiopatici = 8-10 g/dl. Senza = 7 g/dl.",memo:"Cardiopatici = 8-10. Sani = 7."},
+{id:164,q:"Somministrazione rapida EV di HCO3− può provocare:",opts:["Ipovolemia","Ipernatriemia","Iponatriemia","↓PIC"],ans:1,why:"NaHCO3 EV = molto sodio → ipernatriemia.",memo:"Bicarbonato EV = molto sodio."},
+{id:165,q:"Insulina EV nella DKA si interrompe quando:",opts:["GCS >13","EGA normalizzati + paziente si alimenta","pH >7,25","Glicemia <300 mg/dl"],ans:1,why:"Stop: EGA ok + alimentazione autonoma.",memo:"Insulina DKA: stop quando EGA ok + mangia da solo."},
+{id:166,q:"Meccanismo principale dell'ipossia nell'EPA:",opts:["Broncospasmo","Inondamento alveolare","Vasocostrizione ipossica","↑shunt artero-venoso"],ans:3,why:"Risposta come da file: D. ⚠️ L'inondamento alveolare (B) causa lo shunt.",memo:"⚠️ File: shunt. Fisiopatologia: inondamento → shunt.",flag:true},
+{id:167,q:"Sul PNX iperteso è ERRATA questa:",opts:["È causato da versamenti pleurici","Necessita di decompressione immediata","Si accompagna a ipertensione arteriosa","Non provoca alterazioni respiratorie"],ans:0,why:"PNX iperteso NON è da versamento.",memo:"PNX iperteso NON è da versamento."},
+{id:168,q:"Significato del triage infermieristico:",opts:["Priorità del paziente","Gravità del paziente","Tempo di attesa","Categoria diagnostica"],ans:0,why:"Triage = priorità.",memo:"Triage = priorità."},
+{id:169,q:"CPK 10300, cilindri granulari urinari. Complicanza più probabile nelle 24h:",opts:["Emorragia cerebrale","Edema cerebrale","ARDS","Necrosi tubulare acuta"],ans:3,why:"Rabdomiolisi → NTA.",memo:"CPK alto + urine scure = rabdomiolisi → NTA."},
+{id:170,q:"Candidato alla trombolisi EV per ictus:",opts:["Cefalea 5h, rigidità nuca, PA 160/90","Emiparesi 2h, PA 170/90, APR muta","Emiparesi 2h, PA 240/140, 2 convulsioni","Emiparesi 3h in regressione, IMA 2a fa"],ans:1,why:"tPA EV: <4,5h, PA <185/110, no controindicazioni.",memo:"tPA EV: <4,5h, PA controllata."},
+{id:171,q:"Scala per monitoraggio nel coma:",opts:["GCS","FOUR","CPSS","AVPU"],ans:1,why:"FOUR > GCS nel coma profondo.",memo:"FOUR > GCS nel coma profondo."},
+{id:172,q:"Underdamping PA invasiva:",opts:["Sottostima diastolico","Sottostima sistolico","Sovrastima sistolico","Sovrastima diastolico"],ans:2,why:"Underdamped → SOVRASTIMA sistolica.",memo:"Under = sistolica esagerata."},
+{id:173,q:"Donna 42a, rash + sibili dopo vancomicina. Dopo O2:",opts:["Ranitidina","Antistaminici","Epinefrina","Salbutamolo"],ans:2,why:"Anafilassi → adrenalina = prima scelta.",memo:"Rash + sibili = anafilassi → adrenalina."},
+{id:174,q:"Velocità correzione iponatriemia da non superare:",opts:["0,5-1 mEq/L/h","3 mEq/L/h","1-1,5 mEq/L/h","2-2,5 mEq/L/h"],ans:0,why:"Max 0,5-1 mEq/L/h.",memo:"Iponatriemia: 0,5-1 mEq/L/h."},
+{id:175,q:"Misurazione PA invasiva:",opts:["Molto costosa","Sempre indicata","Può essere meno precisa della non invasiva","È sempre più attendibile della non invasiva"],ans:3,why:"Risposta come da file: D. ⚠️ Con artefatti (~30%) può peggiorare.",memo:"⚠️ File: D. Con artefatti può peggiorare.",flag:true},
+{id:176,q:"CRT nei pazienti con shock settico:",opts:["È aumentato","È invariato","È normale se <4 sec","È diminuito"],ans:0,why:"Shock settico → CRT aumentato.",memo:"Shock settico = CRT aumentato."},
+{id:177,q:"Maschio 58a alcolista, chetonuria senza glicosuria:",opts:["Soluzione fisiologica","Glucosio 5% EV","Insulina EV","Bicarbonato EV"],ans:1,why:"Chetoacidosi alcolica: glucosio EV. NO insulina!",memo:"Chetoacidosi alcolica: glucosio EV."},
+{id:178,q:"Uomo 71a, ipostenia emisoma sx comparsa ieri, TC negativa:",opts:["tPA endoarterioso","Aspirina","tPA endovenoso","Eparina EV"],ans:1,why:">4,5h → fuori finestra tPA. Aspirina.",memo:"Ictus vecchio >4,5h: aspirina."},
+{id:179,q:"Donna 30a, QRS largo, PA 70/40, ingestione farmaci:",opts:["Bicarbonato sodio EV 1 mEq/kg bolo lento","Amiodarone 1f EV in 100 ml","Propafenone EV 2 mg/kg","Adenosina 6 mg EV"],ans:0,why:"QRS largo da intossicazione = triciclici → bicarbonato.",memo:"QRS largo da intossicazione = triciclici → bicarbonato."},
+{id:180,q:"Uomo 78a, sepsi, DM con metformina:",opts:["Incretine","Continuare terapia domiciliare","Sospendere metformina, insulina EV","Sospendere controllo glicemia"],ans:2,why:"Metformina + ipoperfusione → acidosi lattica.",memo:"Metformina + acuto = sospendi."},
+{id:181,q:"Donna 34a, flushing + cefalea dopo tonno fresco:",opts:["Epinefrina","Morfina","Antistaminici","Paracetamolo"],ans:2,why:"Sindrome sgombroide (istamina) → antistaminici.",memo:"Tonno + flushing = sgombroide → antistaminici."},
+{id:182,q:"Uomo 38a, tumefazione collo post-dentaria:",opts:["Stafilococco","Flora polimicrobica","Streptococco","Klebsiella"],ans:1,why:"Angina di Ludwig = flora polimicrobica.",memo:"Ludwig = flora polimicrobica."},
+{id:183,q:"Ipotermia severa - trattamento:",opts:["Massaggio e mobilizzazione arti","Nessuna terapia","Riscaldamento attivo interno","Levotiroxina EV ogni 8h"],ans:2,why:"Riscaldamento interno. NO manipolazione.",memo:"Ipotermia severa: scalda da dentro."},
+{id:184,q:"Farmaco per controllare l'infiammazione nell'asmatico:",opts:["Corticosteroide","Teofillina","COX-2 inibitori","Beta2-agonisti a lunga durata"],ans:0,why:"Corticosteroidi = cardine infiammazione asma.",memo:"Asma infiammazione = corticosteroide."},
+{id:185,q:"Controindicazione alla puntura lombare:",opts:["Segni di meningismo","Guillain-Barré","Febbre 39°C","Conta piastrinica <50.000"],ans:3,why:"Piastrine <50.000 → controindicazione.",memo:"PL controindicata se piastrine <50.000."},
+{id:186,q:"EGA atteso dopo ingestione di 50 pasticche di aspirina:",opts:["pH↓, HCO3↑, CO2↑","pH↓, HCO3↓, CO2↓","pH↓, HCO3↓, CO2↑","pH↓, HCO3↑, CO2↓"],ans:1,why:"Acidosi metabolica (↓HCO3) + alcalosi resp. (↓CO2).",memo:"Aspirina: pH↓, HCO3↓, CO2↓."},
+{id:187,q:"Quando si realizza il colpo di calore:",opts:["Atleti in clima caldo","Dopo folgorazione","Nella defervescenza settica","Durante plasma expanders"],ans:0,why:"Sforzo + caldo → incapacità di termoregolare.",memo:"Colpo di calore: atleta + caldo + sforzo."},
+{id:188,q:"La terapia iperosmolare:",opts:["Consiste in NaHCO3","Indicata sempre nel soporoso","Controindicata in ipocalcemia","Riduce l'edema cerebrale"],ans:3,why:"Mannitolo o soluzione ipertonica → richiama acqua dal cervello.",memo:"Iperosmolare = asciuga il cervello."},
+{id:189,q:"L'iperkaliemia grave è definita per K+:",opts:[">4 mEq/L",">5 mEq/L",">8 mEq/L",">7 mEq/L"],ans:3,why:"K+ >7 mEq/L = grave.",memo:"IperK grave >7."},
+{id:190,q:"Fattori favorenti emboli mesenterici (dom. 190):",opts:["IMA recente","Aritmie cardiache","Disturbi valvolari","Tutte le risposte"],ans:3,why:"FA + IMA + valvulopatie.",memo:"Emboli mesenterici: FA + IMA + valvole."},
+{id:191,q:"Nell'intossicazione da organofosforici è indicata:",opts:["Atropina","Metacolina","Camera iperbarica","Acetilcolina"],ans:0,why:"Organofosforici → ↑ACh → SLUDGE → antidoto: ATROPINA.",memo:"Organofosforici → atropina."},
+{id:192,q:"Sul metabolismo del Na+, è ERRATA:",opts:["Disturbi neurologici frequenti","In iponatriemia vanno usate sempre le ipertoniche","Na+ varia con la glicemia","Correzione deve essere lenta"],ans:1,why:"Ipertoniche NON sempre: solo nelle gravi/sintomatiche.",memo:"Ipertoniche NON sempre."},
+{id:193,q:"Somministrazione di CaCl EV:",opts:["Stabilizzatore di membrana, riduce rischio FV in iperK","Favorisce escrezione urinaria di K","Aumenta la FC","Riduce le concentrazioni di K"],ans:0,why:"Stabilizzatore di membrana miocardica. NON abbassa il K.",memo:"CaCl EV: stabilizza. Non abbassa il K."},
+{id:194,q:"Uomo 25a ad alta quota, dispnea, tosse acquosa:",opts:["Furosemide EV","Scendere di quota","Riposo assoluto","Nifedipina per os"],ans:1,why:"HAPE: scendere di quota.",memo:"HAPE: scendi."},
+{id:195,q:"Il bicarbonato nella DKA:",opts:["Caposaldo delle LG, sempre di routine","Non comporta somministrazione di sodio","Può causare acidosi cellulare paradossa","Migliora l'ipokaliemia"],ans:2,why:"Non indicato di routine: acidosi paradossa nel LCR.",memo:"Bicarbonato in DKA: NO routine."},
+{id:196,q:"Quale farmaco provoca amnesia?",opts:["Fentanil","Midazolam","Flumazenil","Morfina"],ans:1,why:"Midazolam → amnesia anterograda.",memo:"Midazolam = dimentica."},
+{id:197,q:"Paziente 60a, massa mediastinica, dolore retrosternale irradiato:",opts:["Morbo di Hodgkin","Timoma","Gozzo retrosternale","Aneurisma dissecante dell'aorta"],ans:3,why:"Dissezione aortica.",memo:"Dolore + irradiazione + mediastino = dissezione aortica."},
+{id:198,q:"Astenia, ipotensione, ipoglicemia, ipoNa, iperpigmentazione:",opts:["Iposurrenalismo cronico","Ipotiroidismo cronico","Iposurrenalismo acuto","Ipotiroidismo acuto"],ans:0,why:"Morbo di Addison.",memo:"Addison: iperpigmentazione = chiave diagnostica."},
+{id:199,q:"Condizione per trauma cranico 'lieve':",opts:["Cefalea sì, vomito no","Non ci sia amnesia","GCS tra 14 e 15","Non vi sia perdita di coscienza"],ans:2,why:"Trauma lieve = GCS 14-15.",memo:"Trauma lieve = GCS 14-15."},
+{id:200,q:"Parametro da testare sempre nel paziente in coma:",opts:["Uricemia","Cloremia","Glicemia","Leucocitosi"],ans:2,why:"Ipoglicemia = causa più comune reversibile.",memo:"Coma = glicemia subito."},
+{id:201,q:"Il kayexalate:",opts:["Diuretico per ipernatriemia","Farmaco per ipermagnesemia","Chelante per ipercalcemia","Chelante per iperkaliemia"],ans:3,why:"Resina che lega K nell'intestino.",memo:"Kayexalate = chelante del K intestinale."},
+{id:202,q:"Segni affidabili per distinguere epilessia da sincope:",opts:["Perdita di urine","Scosse tonico-cloniche testimoniate","Morsus linguale e periodo post-critico","Acufeni precedenti"],ans:2,why:"Morsus laterale + confusione post-critica.",memo:"Epilessia: morsus laterale + confusione post-critica."},
+{id:203,q:"Triage infermieristico Toscana dal 2019:",opts:["Sistema con 4 colori","Sistema con 5 codici numerici","3 categorie + 4 colori","Sistema diverso per ogni ospedale"],ans:1,why:"5 codici numerici.",memo:"Toscana triage: 5 codici numerici."},
+{id:204,q:"Maschio 13a, collo 'scricchiola sotto le dita':",opts:["Epiglottite","Pneumomediastino","Ascesso retrofaringeo","Frattura laringe"],ans:1,why:"Crepitio sottocutaneo = enfisema = pneumomediastino.",memo:"Scricchiolio al collo = pneumomediastino."},
+{id:205,q:"HFNC:",opts:["Miscela umidificata/riscaldata a flusso <1 L/kg/min","Miscela umidificata/riscaldata a flusso >1 L/kg/min","Qualunque sistema a flusso >1 L/kg/min","Miscela umidificata ma non riscaldata a flusso >1 L/kg/min"],ans:1,why:">1 L/kg/min, umidificato E riscaldato.",memo:"HFNC: >1 L/kg/min, umidificato, riscaldato."},
+{id:206,q:"Segnale overdamped di PA invasiva:",opts:["Sottostima il diastolico","Sottostima il sistolico","Sovrastima il diastolico","Sovrastima il sistolico"],ans:1,why:"Overdamped → onda piatta → SOTTOSTIMA sistolica.",memo:"Overdamped: sistolica giù, diastolica su."},
+{id:207,q:"L'esofago è posizionato nel:",opts:["Mediastino anteriore","Mediastino posteriore","Mediastino medio","Mediastino superiore"],ans:1,why:"L'esofago decorre nel mediastino posteriore, posteriormente alla trachea e al pericardio, anteriormente alla colonna vertebrale.",memo:"Esofago = mediastino posteriore."},
+{id:208,q:"Il protossido di azoto (N₂O):",opts:["Agisce sui recettori GABA","È un analgesico","È un anestetico alogenato","È usato solo in odontoiatria"],ans:1,why:"Il N₂O agisce sui recettori NMDA (non GABA) ed ha proprietà analgesiche. Non è un alogenato. Usato in odontoiatria, ostetricia e anestesia.",memo:"N₂O = analgesico, NMDA, non alogenato."},
+{id:209,q:"Digiuno pre-operatorio in elezione:",opts:["Dalla mezzanotte del giorno precedente","Da 12 ore","Da 24 ore","Liquidi chiari fino a 2h prima, solidi da almeno 6h prima"],ans:3,why:"Linee guida ERAS/ASA: liquidi chiari fino a 2h, solidi fino a 6h prima. La regola della mezzanotte è obsoleta.",memo:"Digiuno: liquidi 2h, solidi 6h. Mezzanotte obsoleta."},
+{id:210,q:"Seconda causa più frequente di pancreatite acuta:",opts:["Calcoli biliari","Alcol","Iatrogena (post-ERCP)","Ipertrigliceridemia"],ans:1,why:"Prima causa: litiasi biliare (~40-50%). Seconda causa: alcol (~30%).",memo:"Pancreatite: 1° calcoli, 2° alcol."},
+{id:211,q:"Indicazione alla CRRT in TI:",opts:["AKI con diuresi conservata","Acidosi metabolica grave non responsiva a terapia","Ipokaliemia refrattaria","Ipernatriemia lieve"],ans:1,why:"Indicazioni: acidosi metabolica severa refrattaria, iperkaliemia refrattaria, sovraccarico idrico, uremia sintomatica. CRRT preferita nei pazienti instabili.",memo:"CRRT: acidosi grave refrattaria, iperK, sovraccarico, uremia."},
+{id:212,q:"Sintomo principale di erniazione transtentoriale nel TCG:",opts:["Midriasi unilaterale non reattiva","Dispnea","Bradicardia isolata","Ipertensione arteriosa isolata"],ans:0,why:"Erniazione uncale comprime il III nervo cranico → midriasi unilaterale fissa non reattiva. Segno critico di compressione imminente del tronco.",memo:"Erniazione = midriasi unilaterale fissa. Urgenza assoluta."},
+{id:213,q:"Quale parametro NON ha valore prognostico nella pancreatite:",opts:["Amilasi e lipasi","Balthazar Score (TC)","APACHE II Score","Criteri di Ranson"],ans:0,why:"Amilasi/lipasi hanno valore diagnostico, non prognostico: i livelli non correlano con la gravità. Balthazar, APACHE II e Ranson sono prognostici.",memo:"Amilasi/lipasi = diagnosi, NON prognosi."},
+{id:214,q:"I moderni anestetici inalatori:",opts:["Hanno metabolismo prevalentemente epatico","Hanno azione solo sul SNC","Esistono antidoti specifici","Deprimono la risposta dei centri respiratori"],ans:3,why:"Gli alogenati moderni (sevoflurano, desflurano, isoflurano) deprimono i centri respiratori in modo dose-dipendente. Il metabolismo è in parte epatico ma minimo (es. sevoflurano ~2-5%). Non esistono antidoti specifici.",memo:"Anestetici inalatori → deprimono respiro, no antidoto."},
+{id:215,q:"Vantaggio principale della CRRT rispetto alla dialisi intermittente:",opts:["Riduce il rischio di ipotensione durante il trattamento","Permette rimozione rapida del potassio","È adatta solo a pazienti pediatrici","Necessita solo di accessi venosi periferici"],ans:0,why:"La CRRT è continua e lenta: rimozione graduale dei fluidi → minore instabilità emodinamica rispetto alla dialisi intermittente (IHD). È la scelta preferita nel paziente critico ipoteso.",memo:"CRRT = continua = stabile emodinamicamente."},
+{id:216,q:"Indicazione comunemente accettata per iniziare la CRRT in TI:",opts:["Urea < 20 mg/dL","Acidosi metabolica severa refrattaria","Ipertensione non controllata farmacologicamente","Diuresi > 100 mL/h"],ans:1,why:"Le indicazioni classiche (AEIOU): Acidosi metabolica severa refrattaria, ipErK refrattaria, sovraccarico Idrico refrattario, uremia sintOmatica, intossicazione da dializzabili (Uremic complications). Urea bassa, ipertensione e buona diuresi NON sono indicazioni.",memo:"CRRT: AEIOU = Acidosi, iperK, Idrico, uremia."},
+{id:217,q:"Un segnale overdamped di pressione arteriosa invasiva:",opts:["Sottostima la pressione arteriosa sistolica","Sottostima la pressione arteriosa diastolica","Sovrastima la pressione arteriosa media","Sovrastima la pressione arteriosa sistolica"],ans:0,why:"Overdamped (smorzamento eccessivo, es. bolle, coaguli nel circuito): onda appiattita → SOTTOSTIMA la sistolica e SOVRASTIMA la diastolica. La pressione media (MAP) è relativamente conservata.",memo:"Overdamped: sistolica GIÙ, diastolica SU, MAP ok."},
+{id:218,q:"Correzione atresia esofagea con fistola tracheo-bronchiale: entro quando?",opts:["48 ore","1 settimana","1 mese","1 anno"],ans:0,why:"L'atresia esofagea con fistola tracheoesofagea è un'emergenza neonatale: la correzione chirurgica va eseguita entro 24-48 ore dalla nascita per prevenire aspirazione del contenuto gastrico e polmonite chimica.",memo:"Atresia esofagea + fistola = chirurgia entro 48 ore."},
+{id:219,q:"Un segnale underdamped di pressione arteriosa invasiva:",opts:["Sovrastima la pressione arteriosa diastolica","Sovrastima la pressione arteriosa sistolica","Sottostima la pressione arteriosa sistolica","Sottostima la pressione arteriosa media"],ans:1,why:"Underdamped (smorzamento insufficiente, es. circuito rigido o lungo): oscillazioni eccessive → SOVRASTIMA la sistolica e SOTTOSTIMA la diastolica. È il difetto opposto all'overdamping.",memo:"Underdamped: sistolica SU, diastolica GIÙ. Opposto dell'overdamped."},
+{id:220,q:"Quali sintomi sono associati al glaucoma ad angolo chiuso?",opts:["Lacrimazione intensa","Dolore, occhio rosso e visione offuscata","Diplopia con strabismo convergente","Fotofobia e diplopia"],ans:1,why:"Il glaucoma acuto ad angolo chiuso è un'emergenza oftalmologica: dolore oculare intenso, occhio rosso (iperemia), visione offuscata con aloni colorati, midriasi fissa media, nausea/vomito. Va trattato urgentemente per evitare cecità.",memo:"Glaucoma acuto: dolore + occhio rosso + visione offuscata. Emergenza!"},
+{id:221,q:"Quali complicanze NON sono caratteristiche dell'ingestione accidentale di corpi estranei?",opts:["Inalazione tracheo-bronchiale","Perdita di peso","Fistola aortico-esofagea","Mediastinite"],ans:1,why:"L'ingestione di corpi estranei può causare inalazione, perforazione con mediastinite e fistola aorto-esofagea (rara ma fatale). La perdita di peso NON è una complicanza acuta caratteristica.",memo:"Corpi estranei: NO perdita di peso. Sì inalazione, mediastinite, fistola."},
+{id:222,q:"La diagnosi di pancreatite acuta si esegue con:",opts:["Sintomatologia dolorosa epigastrica con nausea e vomito","Positività di 2 dei 3 criteri precedenti","Aumento amilasi/lipasi sieriche >3 volte la norma","TAC addome"],ans:1,why:"La diagnosi richiede almeno 2 dei 3 criteri (criteri di Atlanta): 1) dolore addominale tipico; 2) amilasi/lipasi >3 volte il valore normale; 3) reperti di imaging compatibili (TC/RM/eco).",memo:"Pancreatite: 2 dei 3 criteri di Atlanta (dolore, enzimi x3, imaging)."},
+{id:223,q:"Lo shock settico si definisce come una sepsi più:",opts:["LAC >2 mmol/L","Mancata risposta al trattamento","Vasopressore per PAM >65 mmHg dopo adeguato riempimento volemico e LAC >2 mmol/L","Vasopressore per PAM >65 mmHg e LAC >2 mmol/L indipendente dalla volemia"],ans:2,why:"Definizione Sepsis-3: sepsi + necessità di vasopressori per mantenere PAM ≥65 mmHg E lattati >2 mmol/L NONOSTANTE un adeguato riempimento volemico. Entrambi i criteri richiesti dopo fluidi.",memo:"Shock settico = sepsi + vasopressore (PAM≥65) + lattati>2, DOPO i fluidi."},
+{id:224,q:"I restringimenti naturali dell'esofago visibili a un esofagogramma sono tutti tranne quello provocato da:",opts:["Aorta","Atrio","Timo","Bronco sinistro"],ans:2,why:"I 4 restringimenti esofagei fisiologici: cricoideo (sfintere esofageo superiore), aortico, bronchiale (bronco sx), diaframmatico. Il timo NON causa un'impronta esofagea. L'atrio sinistro dilatato può comprimere l'esofago.",memo:"Restringimenti esofago: cricoide, aorta, bronco sx, diaframma. NON timo."},
+{id:225,q:"Quale delle seguenti definizioni NON è vera per la pancreatite acuta?",opts:["È divisa in base alla severità in lieve, moderata e grave","È divisa in due tipi (edematosa e necrotizzante)","È divisa in due fasi precoce e tardiva","È divisa in due forme (da trattare e da non trattare)"],ans:3,why:"La pancreatite si classifica per severità (lieve/moderata/grave), per tipo morfologico (edematosa/necrotizzante) e per fase (precoce/tardiva). La divisione 'da trattare/non trattare' NON esiste.",memo:"Pancreatite: severità, tipo, fase. NON 'da trattare/non trattare'."},
+{id:226,q:"Quale affermazione è vera per il triage infermieristico ospedaliero della Toscana?",opts:["È lo stesso triage delle maxiemergenze","È un sistema unico simile al sistema CESIRA","È un sistema unico diverso da quello preospedaliero","È un sistema variabile simile al sistema SMART"],ans:2,why:"Il triage ospedaliero toscano è un sistema unico regionale, distinto dal triage preospedaliero (118) e dai sistemi delle maxiemergenze (CESIRA/SMART usati sul campo).",memo:"Triage Toscana: sistema unico, diverso dal preospedaliero."},
+{id:227,q:"Ad un Rx torace per sospetta perforazione esofagea sono presenti i seguenti segni, TRANNE:",opts:["Pneumo/idrotorace","Slargamento del mediastino","Broncopolmonite","Falce d'aria sottodiaframmatica"],ans:2,why:"La perforazione esofagea dà: pneumomediastino/slargamento mediastinico, pneumo/idrotorace, enfisema sottocutaneo, falce d'aria. La broncopolmonite NON è un segno radiologico diretto di perforazione.",memo:"Perforazione esofago: aria nel mediastino/torace. NON broncopolmonite."},
+{id:228,q:"In una pancreatite acuta grave necrotico-emorragica, quale complicanza può risultare letale nelle prime ore?",opts:["Shock settico","Shock emorragico","Shock anafilattico","Shock ipovolemico"],ans:3,why:"Nelle prime ore la causa di morte è lo shock ipovolemico/distributivo da sequestro di liquidi nel terzo spazio (SIRS, perdite retroperitoneali). Lo shock settico subentra più tardivamente con l'infezione della necrosi.",memo:"Pancreatite grave: prime ore = shock ipovolemico. Tardivo = settico."},
+{id:229,q:"La Pressione Venosa Centrale (PVC):",opts:["Tutte le risposte","È misurata tramite cateteri venosi centrali","È ridotta in pazienti con shock ipovolemico","Rappresenta la pressione atriale destra"],ans:0,why:"Tutte vere: la PVC si misura con CVC, rappresenta la pressione in atrio destro (riempimento del cuore destro) ed è ridotta nello shock ipovolemico (vene vuote).",memo:"PVC: CVC + atrio dx + ridotta nell'ipovolemico = tutte vere."},
+{id:230,q:"Qual è la modalità di ventilazione meccanica raccomandata nei pazienti con ARDS?",opts:["Ventilazione con FiO2 fissa al 100%","Ventilazione a bassi volumi tidal (6 ml/kg peso ideale)","Volume controllato con volumi tidal elevati","CPAP a 0 cmH2O"],ans:1,why:"La ventilazione protettiva nell'ARDS prevede bassi volumi tidal (6 ml/kg di peso ideale), pressione di plateau <30 cmH2O e PEEP adeguata, per ridurre il danno polmonare da ventilazione (VILI).",memo:"ARDS: ventilazione protettiva = 6 ml/kg peso ideale."},
+{id:231,q:"Nella pancreatite acuta necrotizzante come si previene l'infezione della necrosi?",opts:["Con la decontaminazione batterica intestinale","Con l'antibioticoprofilassi","Con tutte le modalità riportate","Con la nutrizione enterale"],ans:3,why:"La nutrizione enterale precoce mantiene il trofismo della mucosa intestinale e riduce la traslocazione batterica, prevenendo l'infezione della necrosi. L'antibioticoprofilassi di routine NON è raccomandata.",memo:"Necrosi pancreatica: prevenzione = nutrizione enterale, NON antibiotici di routine."},
+{id:232,q:"Tra gli accessi venosi, quale è più a rischio di pneumotorace?",opts:["Catetere femorale","Catetere centrale ecoguidato in giugulare interna","PICC (catetere centrale a inserzione periferica)","Catetere centrale succlavia senza guida ecografica"],ans:3,why:"L'accesso succlavio alla cieca (senza eco) ha il maggior rischio di pneumotorace per la vicinanza alla cupola pleurica. Femorale e PICC non interessano il torace; l'ecoguida riduce molto il rischio.",memo:"Succlavia alla cieca = max rischio PNX."},
+{id:233,q:"Per effettuare efficacemente e in sicurezza le compressioni toraciche:",opts:["Il soccorritore deve stare a sinistra all'altezza del bacino","La frequenza non deve superare 90 bpm","La posizione delle mani deve essere al centro del torace","La profondità non deve superare i 4 cm"],ans:2,why:"Mani al centro del torace (metà inferiore dello sterno). Frequenza 100-120/min, profondità 5-6 cm nell'adulto.",memo:"Compressioni: mani al centro del torace, 100-120/min, 5-6 cm."},
+{id:234,q:"La terapia della bronchiolite consiste prevalentemente in:",opts:["Ossigenoterapia ad alto flusso","Aerosol prevalentemente broncodilatatori","Sempre ventilazione a pressione positiva","Ossigeno e aerosol come da linee guida"],ans:3,why:"La bronchiolite si gestisce con supporto: ossigeno e idratazione, aerosol secondo linee guida. Broncodilatatori e steroidi NON sono raccomandati di routine.",memo:"Bronchiolite: terapia di supporto (O2 + aerosol come da LG)."},
+{id:235,q:"Quale condizione è più associata a insufficienza respiratoria ipossiemica nel bambino?",opts:["Asma lieve","Gastrite","Cefalea","Bronchiolite"],ans:3,why:"La bronchiolite (tipicamente da VRS) è la causa più comune di insufficienza respiratoria ipossiemica nel lattante/bambino piccolo.",memo:"Bambino + IRA ipossiemica = bronchiolite."},
+{id:236,q:"La presenza di 'lung pulse' in un paziente con IRA post-traumatica:",opts:["Diagnostica una contusione miocardica","Diagnostica una contusione polmonare sinistra","Permette di escludere lo pneumotorace nell'area esaminata","Diagnostica lo pneumotorace sinistro"],ans:2,why:"Il lung pulse (pulsazione cardiaca trasmessa alla pleura, visibile in M-mode) indica che i foglietti pleurici sono a contatto: esclude il PNX nell'area, come il lung sliding.",memo:"Lung pulse = pleure a contatto = niente PNX."},
+{id:237,q:"Una possibile complicanza della ventilazione meccanica invasiva prolungata è:",opts:["Ipertensione","Bradicardia persistente","Polmonite associata al ventilatore (VAP)","Ipoglicemia"],ans:2,why:"La VAP (Ventilator-Associated Pneumonia) è una complicanza frequente dell'intubazione/ventilazione prolungata, per colonizzazione delle vie aeree e microaspirazioni.",memo:"Ventilazione prolungata → VAP."},
+{id:238,q:"In un paziente con ARDS, quale strategia migliora l'ossigenazione?",opts:["Usare una FiO2 inferiore a 0,21","Ridurre la PEEP","Aumentare i volumi tidal oltre 10 ml/kg","Posizione prona"],ans:3,why:"La pronazione (prone positioning) ridistribuisce la ventilazione/perfusione, recluta zone dorsali e migliora l'ossigenazione nell'ARDS grave. FiO2 <0,21 è impossibile (aria = 21%).",memo:"ARDS: posizione prona migliora l'ossigenazione."},
+{id:239,q:"In ARDS, una pressione di plateau >30 cmH2O è associata a:",opts:["Riduzione della compliance venosa","Maggiore rischio di barotrauma","Riduzione dell'efficacia ventilatoria","Aumento della perfusione cerebrale"],ans:1,why:"Plateau >30 cmH2O sovradistende gli alveoli → rischio di barotrauma/volutrauma. Per questo la ventilazione protettiva mantiene Pplat <30.",memo:"Plateau >30 cmH2O = rischio barotrauma."},
+{id:240,q:"In quale condizione la NIV (ventilazione non invasiva) è controindicata?",opts:["Insufficienza respiratoria lieve","Apnea ostruttiva del sonno","Stato post-operatorio stabile","Compromissione grave dello stato di coscienza"],ans:3,why:"La NIV richiede un paziente collaborante con vie aeree protette. Alterazione grave della coscienza (rischio di inalazione, impossibilità a gestire la maschera) è controindicazione.",memo:"NIV controindicata se coscienza compromessa."},
+{id:241,q:"Quale segno clinico è più indicativo di insufficienza respiratoria acuta nel neonato?",opts:["Tosse secca","Rinorrea","Frequenza cardiaca >100 bpm","Cianosi centrale"],ans:3,why:"La cianosi centrale (colorito bluastro di lingua/mucose) riflette ipossiemia significativa ed è il segno più specifico di IRA grave nel neonato.",memo:"Neonato: cianosi centrale = IRA grave."},
+{id:242,q:"Qual è il disturbo elettrolitico frequentemente associato all'ipomagnesemia?",opts:["Ipocalcemia","Ipernatriemia","Iperkaliemia","Iponatriemia"],ans:0,why:"L'ipomagnesemia causa spesso ipocalcemia (riduce secrezione/azione del PTH) e ipokaliemia. La triade ipoMg-ipoCa-ipoK è classica.",memo:"IpoMg → ipoCa (e ipoK)."},
+{id:243,q:"Un ragazzo di 18 anni con faringotonsillite, petecchie al palato, linfoadenopatia diffusa, epatosplenomegalia e test positivo per emoagglutinine eterofile. Agente responsabile:",opts:["Neisseria gonorrhoeae","Mycoplasma hominis","Citomegalovirus","Virus di Epstein-Barr"],ans:3,why:"Mononucleosi infettiva: il test delle emoagglutinine eterofile (Monospot/Paul-Bunnell) positivo è specifico per l'infezione da EBV.",memo:"Emoagglutinine eterofile + faringite + splenomegalia = EBV (mononucleosi)."},
+{id:244,q:"Quando devono essere trattate le varici esofagee?",opts:["In tutti i casi","Dopo il primo sanguinamento","Dopo un ri-sanguinamento","In presenza di varici F3 e segni di incipiente sanguinamento"],ans:3,why:"Profilassi pre-emorragica indicata per varici grandi (F2-F3) o con segni rossi (red signs) a rischio di sanguinamento. Non tutte le varici vanno trattate.",memo:"Varici: tratta le F3 / a rischio sanguinamento."},
+{id:245,q:"In caso di ri-sanguinamento da varici dopo legatura/sclerosi, cosa si considera?",opts:["TIPS","Trapianto di fegato","Ritrattamento endoscopico","Shunt chirurgico"],ans:0,why:"Il fallimento del trattamento endoscopico ripetuto è indicazione alla TIPS (shunt porto-sistemico intraepatico transgiugulare), che decomprime il sistema portale.",memo:"Ri-sanguinamento varici dopo endoscopia → TIPS."},
+{id:246,q:"Sono cause di stenosi esofagea tutte TRANNE:",opts:["Diverticolo di Zenker","Reflusso gastro-esofageo","Agenti corrosivi","Corpi estranei"],ans:0,why:"Il diverticolo di Zenker è un'estroflessione faringo-esofagea, non una causa di stenosi. RGE, caustici e corpi estranei causano stenosi cicatriziali.",memo:"Zenker = diverticolo, NON stenosi."},
+{id:247,q:"Sono tipici della perforazione esofagea i seguenti segni/sintomi TRANNE:",opts:["Disfagia","Odinofagia","Scialorrea","Segno di Grey-Turner"],ans:3,why:"Il segno di Grey-Turner (ecchimosi ai fianchi) è tipico della pancreatite necrotico-emorragica, non della perforazione esofagea (che dà dolore, disfagia, odinofagia, enfisema sottocutaneo).",memo:"Grey-Turner = pancreatite, NON perforazione esofago."},
+{id:248,q:"Quali agenti chimici sono più lesivi a livello esofago-gastrico in caso di ingestione?",opts:["Liquidi freddi","Alcali","Acidi","Liquidi caldi"],ans:1,why:"Gli alcali (caustici basici) causano necrosi colliquativa, che penetra in profondità ed è più lesiva nell'esofago rispetto alla necrosi coagulativa degli acidi.",memo:"Alcali = necrosi colliquativa = più lesivi all'esofago."},
+{id:249,q:"La classificazione di Forrest:",opts:["Distingue gradi in base al sanguinamento all'endoscopia e correla col rischio di recidiva/chirurgia/morte","Codifica le dimensioni delle varici esofagee (F1-F2-F3)","Classifica le lesioni neoplastiche superficiali del tratto GI","È la classificazione dell'esofagite da reflusso"],ans:0,why:"La classificazione di Forrest stadia le ulcere peptiche sanguinanti all'endoscopia e predice il rischio di risanguinamento e mortalità.",memo:"Forrest = ulcere peptiche sanguinanti (rischio recidiva)."},
+{id:250,q:"Le varici esofago-gastriche NON sono tipiche di quale tipo di ipertensione portale?",opts:["Epatica","Post-epatica","Pre-epatica","Pre-sinusoidale"],ans:1,why:"Nell'ipertensione portale post-epatica (es. Budd-Chiari, scompenso destro) l'ostacolo è a valle del fegato: le varici sono meno tipiche rispetto alle forme intra/pre-epatiche.",memo:"Varici poco tipiche nell'ipertensione portale post-epatica."},
+{id:251,q:"Nella prima fase della pancreatite acuta, il danno prevalente è a carico di quale tessuto?",opts:["Muscolare","Endoteliale","Intestinale","Miocardico"],ans:1,why:"Nella fase precoce il danno è soprattutto endoteliale/microvascolare, con aumento della permeabilità, sequestro di liquidi e SIRS.",memo:"Pancreatite fase precoce: danno endoteliale."},
+{id:252,q:"Riguardo ai bloccanti neuromuscolari NON depolarizzanti:",opts:["Non esiste antagonismo farmacologico","Agiscono sui canali del calcio del muscolo","Provocano una paralisi flaccida","Agiscono sui recettori muscarinici"],ans:2,why:"I curari non depolarizzanti (es. rocuronio) bloccano in modo competitivo i recettori nicotinici della placca → paralisi flaccida. Sono antagonizzabili (neostigmina, sugammadex).",memo:"Curari non depolarizzanti: paralisi flaccida, antagonizzabili."},
+{id:253,q:"Qual è la causa batterica più comune di polmonite acquisita in comunità (CAP)?",opts:["Mycoplasma pneumoniae","Streptococcus pneumoniae","Haemophilus influenzae","Escherichia coli"],ans:1,why:"Lo Streptococcus pneumoniae (pneumococco) è l'agente più frequente della CAP.",memo:"CAP: pneumococco al primo posto."},
+{id:254,q:"Qual è la definizione corretta di insufficienza respiratoria?",opts:["Dispnea soggettiva senza alterazioni emogasanalitiche","Incapacità del sistema respiratorio di mantenere adeguati livelli di O2 o di eliminare CO2","Tosse cronica e raffreddore","PaO2 >80 mmHg e PaCO2 <35 mmHg"],ans:1,why:"L'insufficienza respiratoria è l'incapacità di garantire ossigenazione (tipo I, PaO2<60) e/o eliminazione di CO2 (tipo II, PaCO2>45).",memo:"IRA = il polmone non ossigena e/o non elimina CO2."},
+{id:255,q:"Vantaggio principale degli HFNC rispetto all'ossigenoterapia tradizionale:",opts:["Aumentano il fabbisogno di sedazione","Riducono la pressione intracranica","Migliorano comfort e compliance del paziente","Riducono la FR sotto 10 atti/min"],ans:2,why:"Gli HFNC erogano flusso alto, riscaldato e umidificato: migliorano comfort, compliance, lavaggio dello spazio morto e tollerabilità rispetto alla maschera tradizionale.",memo:"HFNC: più comfort e compliance."},
+{id:256,q:"Uomo 24a, dolore acuto al fianco destro irradiato al testicolo, Giordano positivo, testicolo non dolente. Cosa eseguire per prima cosa?",opts:["Eco testicolo","Conta dei globuli bianchi","Eco renale con mezzo di contrasto","Esame urine ed ecografia renale clinica"],ans:3,why:"Quadro tipico di colica renale/ureterale: l'esame urine (ematuria) e l'ecografia renale (idronefrosi) sono i primi accertamenti, non invasivi e rapidi.",memo:"Colica renale: esame urine + eco renale per primi."},
+{id:257,q:"Il trattamento dell'ipercalcemia:",opts:["Prevede idroclorotiazide","Prevede ottimizzazione del volume intravascolare ed escrezione del calcio urinario","È necessario per calcemia >10 mg/dl","Prevede solo furosemide"],ans:1,why:"Cardine: idratazione con salina (espansione volemica) che promuove la calciuria. La furosemide è aggiuntiva solo dopo reidratazione. I tiazidici sono controindicati (riducono la calciuria).",memo:"Ipercalcemia: idrata e fai escrescere il calcio. NO tiazidici."},
+{id:258,q:"Un paziente con botulismo quali segni presenta precocemente?",opts:["Diarrea persistente","Ipersalivazione","Paralisi dei nervi cranici oculomotori","Ottundimento del sensorio"],ans:2,why:"Il botulismo dà paralisi flaccida discendente che inizia dai nervi cranici: diplopia, ptosi, oftalmoplegia, disfagia, disartria. Il sensorio resta integro.",memo:"Botulismo: paralisi discendente dai nervi cranici (occhi prima)."},
+{id:259,q:"Uomo 60a con alterazione della coscienza. Apre gli occhi al dolore (2), nessuna risposta verbale (1), allontana lo stimolo doloroso (4). Punteggio GCS?",opts:["5","7","9","11"],ans:1,why:"GCS = Occhi 2 (al dolore) + Verbale 1 (nessuna) + Motoria 4 (retrazione/allontanamento al dolore) = 7.",memo:"GCS: E2+V1+M4 = 7."}
+];
+
+const MODES=[{l:"10 domande",n:10},{l:"15 domande",n:15},{l:"20 domande",n:20},{l:"30 domande",n:30},{l:"🎓 Simulazione Test (50)",n:50}];
+const LS_KEY="quiz-em-hist";
+
+// Persistenza robusta: prova localStorage, poi cookie come fallback (utile su Safari / modalita privata)
+function lsAvailable(){
+  try{const t="__t";localStorage.setItem(t,t);localStorage.removeItem(t);return true}catch{return false}
+}
+function setCookie(name,val,days){
+  try{
+    const d=new Date();d.setTime(d.getTime()+days*24*60*60*1000);
+    document.cookie=name+"="+encodeURIComponent(val)+";expires="+d.toUTCString()+";path=/;SameSite=Lax";
+  }catch{}
+}
+function getCookie(name){
+  try{
+    const m=document.cookie.match(new RegExp("(?:^|; )"+name+"=([^;]*)"));
+    return m?decodeURIComponent(m[1]):null;
+  }catch{return null}
+}
+function loadH(){
+  if(lsAvailable()){
+    try{const v=localStorage.getItem(LS_KEY);if(v)return JSON.parse(v)}catch{}
+  }
+  try{const c=getCookie(LS_KEY);if(c)return JSON.parse(c)}catch{}
+  return {};
+}
+function saveH(h){
+  const s=JSON.stringify(h);
+  if(lsAvailable()){try{localStorage.setItem(LS_KEY,s)}catch{}}
+  setCookie(LS_KEY,s,365);
+}
+function clearH(){
+  if(lsAvailable()){try{localStorage.removeItem(LS_KEY)}catch{}}
+  setCookie(LS_KEY,"",-1);
+}
+
+// Store separato per le domande sbagliate (lista di id)
+// Usa bitmask base64 invece di JSON per stare nei 4KB del cookie anche con 259 domande
+const WRONG_KEY="quiz-em-wrong";
+const TOTAL_Q=259;
+function encodeWrong(arr){
+  try{
+    const bytes=Math.ceil(TOTAL_Q/8);
+    const bits=new Uint8Array(bytes);
+    arr.forEach(id=>{const i=id-1;bits[i>>3]|=(1<<(i&7));});
+    return btoa(String.fromCharCode(...bits));
+  }catch{return JSON.stringify(arr)}
+}
+function decodeWrong(str){
+  try{
+    // prova prima bitmask base64
+    if(str&&!/^\[/.test(str)){
+      const raw=atob(str);
+      const arr=[];
+      for(let i=0;i<TOTAL_Q;i++){
+        const byte=raw.charCodeAt(i>>3);
+        if(byte&(1<<(i&7)))arr.push(i+1);
+      }
+      return arr;
+    }
+    // fallback: vecchio formato JSON
+    return JSON.parse(str);
+  }catch{return []}
+}
+function loadWrong(){
+  if(lsAvailable()){
+    try{const v=localStorage.getItem(WRONG_KEY);if(v)return decodeWrong(v)}catch{}
+  }
+  try{const c=getCookie(WRONG_KEY);if(c)return decodeWrong(c)}catch{}
+  return [];
+}
+function saveWrong(arr){
+  const s=encodeWrong(arr);
+  if(lsAvailable()){try{localStorage.setItem(WRONG_KEY,s)}catch{}}
+  setCookie(WRONG_KEY,s,365);
+}
+function clearWrong(){
+  if(lsAvailable()){try{localStorage.removeItem(WRONG_KEY)}catch{}}
+  setCookie(WRONG_KEY,"",-1);
+}
+
+function wShuffle(all,h){
+  const mx=Math.max(...Object.values(h),1);
+  return [...all].map(q=>({q,w:mx-(h[q.id]||0)+1}))
+    .sort((a,b)=>b.w*Math.random()-a.w*Math.random()).map(x=>x.q);
+}
+
+let state={screen:"home",tab:"all",questions:[],cur:0,sel:null,answers:[],confirmed:false,size:null,history:loadH(),wrongSet:loadWrong(),catId:null};
+
+function totalSeen(){return Object.values(state.history).reduce((a,b)=>a+b,0)}
+
+function setState(patch){
+  const sy=window.scrollY||window.pageYOffset;
+  state={...state,...patch};
+  render();
+  // ripristina scroll: evita il salto in cima su iOS a ogni tap
+  if(patch.sel!==undefined||patch.confirmed!==undefined){
+    window.scrollTo(0,sy);
+  }
+}
+
+function startSession(n,catId,wrongOnly){
+  let pool=Q;
+  if(wrongOnly){
+    pool=Q.filter(q=>state.wrongSet.includes(q.id));
+  }else if(catId){
+    const cat=CATS.find(c=>c.id===catId);
+    if(cat)pool=Q.filter(q=>cat.ids.includes(q.id));
+  }
+  if(pool.length===0)return;
+  const qs=wShuffle(pool,state.history).slice(0,Math.min(n,pool.length));
+  setState({screen:"quiz",questions:qs,cur:0,sel:null,answers:[],confirmed:false,size:n,catId:catId||null,wrongMode:!!wrongOnly});
+}
+
+function confirmAns(){
+  if(state.sel===null)return;
+  const q=state.questions[state.cur];
+  const newH={...state.history,[q.id]:(state.history[q.id]||0)+1};
+  saveH(newH);
+  // aggiorna l'elenco delle sbagliate: aggiungi se errata, rimuovi se corretta
+  let newWrong=[...state.wrongSet];
+  if(state.sel!==q.ans){
+    if(!newWrong.includes(q.id))newWrong.push(q.id);
+  }else{
+    newWrong=newWrong.filter(id=>id!==q.id);
+  }
+  saveWrong(newWrong);
+  setState({confirmed:true,history:newH,wrongSet:newWrong,
+    answers:[...state.answers,{qId:q.id,chosen:state.sel,correct:q.ans}]});
+}
+
+function nextQ(){
+  if(state.cur+1>=state.questions.length)setState({screen:"results"});
+  else setState({cur:state.cur+1,sel:null,confirmed:false});
+}
+
+function render(){
+  const app=document.getElementById("app");
+  if(state.screen==="home")app.innerHTML=renderHome();
+  else if(state.screen==="cat")app.innerHTML=renderCat();
+  else if(state.screen==="cat-size")app.innerHTML=renderCatSize();
+  else if(state.screen==="quiz")app.innerHTML=renderQuiz();
+  else app.innerHTML=renderResults();
+}
+
+function renderHome(){
+  const h=state.history,seen=Object.keys(h).length,tot=totalSeen();
+  const cov=Math.round((seen/Q.length)*100);
+  const nWrong=state.wrongSet.length;
+  // Rileva se localStorage non è disponibile (modalità privata Safari o file:// con ITP)
+  const noLS=!lsAvailable();
+  const iosBanner=noLS?`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start">
+    <span style="font-size:18px;flex-shrink:0">⚠️</span>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#fde68a;margin-bottom:3px">Storage limitato</div>
+      <div style="font-size:12px;color:#94a3b8;line-height:1.5">I progressi vengono salvati come cookie. Per la massima affidabilità su Safari/iOS apri questo file da <strong style="color:#e2e8f0">Safari → Condividi → Aggiungi a Home</strong> oppure usa il pulsante Esporta qui sotto.</div>
+    </div>
+  </div>`:"";
+  return`<div class="home-header">
+    <div class="home-icon">🏥</div>
+    <h1>Quiz Emergenze Mediche</h1>
+    <p class="home-sub">259 domande · Spiegazioni · Memo mnemonici</p>
+  </div>
+  ${iosBanner}
+  ${tot>0?`<div class="stats">
+    <div class="stat"><div class="stat-val" style="color:#818cf8">${seen}</div><div class="stat-lbl">domande viste</div></div>
+    <div class="sep"></div>
+    <div class="stat"><div class="stat-val" style="color:#38bdf8">${cov}%</div><div class="stat-lbl">copertura</div></div>
+    <div class="sep"></div>
+    <div class="stat"><div class="stat-val" style="color:#ef4444">${nWrong}</div><div class="stat-lbl">da rivedere</div></div>
+  </div>`:""}
+  ${nWrong>0
+    ? `<button class="btn btn-mode" style="background:linear-gradient(135deg,#ef4444,#f97316);border:none;color:#fff" onclick="startSession(${nWrong},null,true)">🔁 Ripassa solo le sbagliate (${nWrong})<span>→</span></button>`
+    : `<div class="btn btn-mode" style="opacity:.5;cursor:default;border-style:dashed">🔁 Solo le sbagliate <span style="font-weight:400;font-size:12px">— nessuna ancora</span></div>`}
+  <div class="tab-row">
+    <button class="tab${state.tab==="all"?" active":""}" onclick="setState({tab:'all'})">🎲 Tutte</button>
+    <button class="tab${state.tab==="cat"?" active":""}" onclick="setState({tab:'cat'})">📚 Per argomento</button>
+  </div>
+  ${state.tab==="all"
+    ? MODES.map((m,i)=>`<button class="btn btn-mode${i===4?" btn-sim":""}" onclick="startSession(${m.n},null)">${m.l}<span>→</span></button>`).join("")
+    : CATS.map(c=>{
+        const done=c.ids.filter(id=>h[id]).length;
+        return`<button class="cat-btn" onclick="setState({screen:'cat',catId:'${c.id}'})">
+          <span class="cat-icon">${c.icon}</span>
+          <div class="cat-info">
+            <div class="cat-name">${c.name}</div>
+            <div class="cat-count">${c.ids.length} domande · ${done} viste</div>
+          </div>
+          <span class="cat-arrow">→</span>
+        </button>`;}).join("")
+  }
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn btn-ghost" style="flex:1" onclick="exportData()">📤 Esporta progressi</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="importData()">📥 Importa</button>
+  </div>
+  ${tot>0?`<button class="btn btn-ghost" style="margin-top:4px" onclick="resetH()">Azzera storico</button>`:""}`;
+}
+
+function renderCat(){
+  const cat=CATS.find(c=>c.id===state.catId);
+  const pool=Q.filter(q=>cat.ids.includes(q.id));
+  const sizes=[5,10,15,pool.length];
+  const uniq=[...new Set(sizes)].filter(n=>n<=pool.length).sort((a,b)=>a-b);
+  return`<button class="btn btn-back" onclick="setState({screen:'home'})">← Indietro</button>
+  <div style="margin-bottom:20px">
+    <div style="font-size:32px;margin-bottom:8px">${cat.icon}</div>
+    <h1>${cat.name}</h1>
+    <p style="color:#64748b;font-size:13px;margin-top:4px">${pool.length} domande disponibili</p>
+  </div>
+  <p style="color:#94a3b8;font-size:13px;margin-bottom:14px">Quante domande vuoi fare?</p>
+  ${uniq.map(n=>`<button class="btn btn-mode" onclick="startSession(${n},'${cat.id}')">${n===pool.length?"Tutte ("+n+")":n+" domande"}<span>→</span></button>`).join("")}`;
+}
+
+function renderQuiz(){
+  const{questions:qs,cur,sel,confirmed}=state;
+  const q=qs[cur];
+  const pct=((cur+(confirmed?1:0))/qs.length*100);
+  const isRight=confirmed&&sel===q.ans;
+  const cat=state.catId?CATS.find(c=>c.id===state.catId):null;
+  return`
+  <div class="meta">
+    <span class="meta-l">${cur+1} / ${qs.length}${cat?" · "+cat.icon:""}</span>
+    <div class="meta-r">
+      ${q.flag?'<span class="badge">⚠️ LG</span>':""}
+      <span style="color:#4a5568">#${q.id}</span>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+  <div class="card"><p style="font-size:15px;font-weight:500;color:#e2e8f0">${q.q}</p></div>
+  ${q.opts.map((o,i)=>{
+    let cls="opt";
+    if(!confirmed&&sel===i)cls+=" selected";
+    if(confirmed&&i===q.ans)cls+=" correct";
+    if(confirmed&&sel===i&&i!==q.ans)cls+=" wrong";
+    const mark=confirmed?(i===q.ans?" ✓":(sel===i?" ✗":"")):"";
+    return`<button class="${cls}" onclick="selectOpt(${i})"><span class="opt-lbl">${String.fromCharCode(65+i)}</span><span style="flex:1">${o}</span>${mark?`<span>${mark}</span>`:""}
+    </button>`;
+  }).join("")}
+  ${confirmed?`<div class="exp ${isRight?"ok":"ko"}">
+    <div class="exp-title" style="color:${isRight?"#86efac":"#fca5a5"}">${isRight?"✓ Risposta corretta!":"✗ Sbagliata — Corretta: "+q.opts[q.ans]}</div>
+    <div class="exp-why"><strong style="color:#94a3b8">Perché: </strong>${q.why}</div>
+    <div class="memo"><span>MEMO </span>${q.memo}</div>
+    ${q.flag?`<div class="flag"><span>⚠️ NOTA LG </span>Potenziale discrepanza con le linee guida correnti.</div>`:""}
+  </div>`:""}
+  <button class="btn btn-primary" onclick="${confirmed?"nextQ()":"confirmAns()"}">${confirmed?(state.cur+1>=state.questions.length?"Vedi risultati →":"Avanti →"):"Conferma risposta"}</button>
+  <button class="btn btn-ghost" onclick="setState({screen:'home'})">Abbandona sessione</button>`;
+}
+
+function renderResults(){
+  const{answers,questions,size,catId}=state;
+  const score=answers.filter(a=>a.chosen===a.correct).length;
+  const pct=Math.round(score/questions.length*100);
+  const col=pct>=80?"#22c55e":pct>=60?"#f59e0b":"#ef4444";
+  const wrong=answers.filter(a=>a.chosen!==a.correct);
+  const cat=catId?CATS.find(c=>c.id===catId):null;
+  const is50=questions.length===50;
+  const voto30=is50?Math.round((score/50)*30):null;
+  const votoColor=voto30>=28?"#22c55e":voto30>=24?"#f59e0b":voto30>=18?"#f97316":"#ef4444";
+  const votoLabel=voto30===30?"30 🏆":voto30>=28?"28-29 🎉":voto30>=24?"Buono 📚":voto30>=18?"Sufficiente 💪":"Insufficiente 😤";
+  return`<div style="text-align:center;padding:24px 0 20px">
+    <div style="font-size:52px;margin-bottom:10px">${pct>=80?"🎉":pct>=60?"📚":"💪"}</div>
+    <h1 style="margin-bottom:4px">Sessione completata</h1>
+    ${cat?`<p style="color:#64748b;font-size:13px;margin-top:4px">${cat.icon} ${cat.name}</p>`:""}
+    <div class="score-pct" style="color:${col}">${pct}%</div>
+    <p style="color:#64748b">${score} corrette su ${questions.length}</p>
+    ${state.wrongMode&&state.wrongSet.length===0?`<p style="color:#22c55e;font-size:14px;font-weight:600;margin-top:10px">🎯 Hai svuotato la lista delle sbagliate! Ottimo lavoro.</p>`:""}
+    ${state.wrongMode&&state.wrongSet.length>0?`<p style="color:#f59e0b;font-size:13px;margin-top:10px">Restano ${state.wrongSet.length} domande da rivedere.</p>`:""}
+    ${is50?`<div style="margin-top:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px">
+      <p style="color:#94a3b8;font-size:12px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Voto simulato</p>
+      <div style="font-size:58px;font-weight:800;color:${votoColor};line-height:1">${voto30}</div>
+      <div style="font-size:13px;color:#64748b;margin-top:2px">/ 30 &nbsp;·&nbsp; ${votoLabel}</div>
+      <div style="margin-top:12px;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${Math.min((voto30/30)*100,100)}%;background:linear-gradient(90deg,${votoColor},${votoColor}99);border-radius:3px;transition:width .5s"></div>
+      </div>
+      <p style="color:#4a5568;font-size:11px;margin-top:10px">Calcolato su 50 domande con scala proporzionale a /30</p>
+    </div>`:""}
+  </div>
+  ${wrong.length>0?`<div class="section-title"><span style="color:#ef4444">✗</span>Risposte errate (${wrong.length})</div>
+  ${wrong.map(a=>{
+    const q=Q.find(x=>x.id===a.qId);
+    return`<div class="wrong-item">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="color:#4a5568;font-size:11px">#${q.id}</span>
+        ${q.flag?'<span class="badge">⚠️ LG</span>':""}
+      </div>
+      <div class="wrong-q">${q.q}</div>
+      <div class="wrong-ans ko">✗ ${q.opts[a.chosen]}</div>
+      <div class="wrong-ans ok">✓ ${q.opts[q.ans]}</div>
+      <div class="wrong-why"><span>Perché: </span>${q.why}</div>
+      <div class="memo"><span>MEMO </span>${q.memo}</div>
+    </div>`;}).join("")}`:""}
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="startSession(${size},'${catId||""}',${state.wrongMode?"true":"false"})">🔄 Nuova sessione</button>
+    <button class="btn" onclick="setState({screen:'home'})">🏠 Home</button>
+  </div>`;
+}
+
+window.startSession=startSession;
+window.selectOpt=function(i){if(!state.confirmed)setState({sel:i})};
+window.confirmAns=confirmAns;
+window.nextQ=nextQ;
+window.setState=setState;
+window.resetH=function(){clearH();clearWrong();state.history={};state.wrongSet=[];render()};
+
+// Esporta/importa progressi — safety net per Safari/iOS
+window.exportData=function(){
+  const payload=JSON.stringify({h:state.history,w:state.wrongSet,v:1,ts:Date.now()});
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(payload).then(()=>showToast("✓ Copiato negli appunti!")).catch(()=>showPromptExport(payload));
+  }else{
+    showPromptExport(payload);
+  }
+};
+window.importData=function(){
+  const raw=prompt("Incolla qui i tuoi dati di backup:");
+  if(!raw)return;
+  try{
+    const d=JSON.parse(raw);
+    if(d&&d.h&&d.w){
+      state.history=d.h;
+      state.wrongSet=d.w;
+      saveH(d.h);
+      saveWrong(d.w);
+      render();
+      showToast("✓ Progressi ripristinati!");
+    }else{throw new Error("formato non valido")}
+  }catch{showToast("❌ Dati non validi");}
+};
+function showPromptExport(payload){
+  prompt("Copia questi dati per fare un backup (seleziona tutto e copia):",payload);
+}
+function showToast(msg){
+  const t=document.createElement("div");
+  t.textContent=msg;
+  t.style.cssText="position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1e293b;color:#e2e8f0;padding:10px 18px;border-radius:20px;font-size:14px;font-family:-apple-system,sans-serif;z-index:9999;border:1px solid rgba(255,255,255,.12);pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)";
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2200);
+}
+
+render();
+</script>
+</body>
+</html>
